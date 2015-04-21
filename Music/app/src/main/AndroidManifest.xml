@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.musicplayer"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="17"
+        android:targetSdkVersion="17" />
+
+    <application>
+        <activity
+         	android:name="linhai.example.com.music.MusicManagerActivity">
+       	</activity>
+        	
+        <activity
+            android:name="linhai.example.com.music.MainActivity" >
+        </activity>
+    
+        <activity
+            android:name="linhai.example.com.music.AnimationActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="linhai.example.com.music.PlayingActivity">
+        </activity>
+        
+        <!-- Play Music Service-->
+        <service android:name="linhai.example.com.service.PlayMusicService">
+           	<intent-filter>
+			    <action android:name="com.example.service.PlayMusicService"/>
+			</intent-filter>  
+        </service>
+    
+        <!-- Receiver -->
+        <receiver android:name = "linhai.example.com.music.MainActivity$MainActivityReceiver">
+        	<intent-filter>
+        	    <action android:name="com.example.PLAY_NEXT"/>
+        	</intent-filter>
+        </receiver>
+        
+        <receiver android:name="linhai.example.com.music.PlayingActivity$PlayingActivityReceiver">
+        </receiver>
+    </application>
+
+    <!-- 获取读取电话通知的权限 -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
+    
+</manifest>
