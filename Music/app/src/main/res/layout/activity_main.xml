@@ -52,10 +52,13 @@
 
     	<ImageButton
         	android:id = "@+id/playingimageview"
-        	android:layout_width = "60sp"
+        	android:layout_width = "70sp"
         	android:layout_height = "88sp"
+            android:background="@drawable/playing_button"/>
+            <!--
         	android:src="@drawable/playing_button"
-    	/>
+        	-->
+
     
     	<LinearLayout
         	android:id="@+id/Button_Layout"

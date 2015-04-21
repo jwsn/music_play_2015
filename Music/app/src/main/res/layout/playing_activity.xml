@@ -70,7 +70,7 @@
    		android:layout_above="@+id/seekbarLayout" 
    		android:layout_gravity="center">
  	
-		<com.example.lrc.LrcView  
+		<linhai.example.com.lrc.LrcView
     		android:id="@+id/song_lrc_text"  
       		android:layout_width="match_parent"  
         	android:layout_height="match_parent"/>

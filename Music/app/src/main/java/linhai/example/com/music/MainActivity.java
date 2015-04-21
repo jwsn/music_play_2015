@@ -10,6 +10,9 @@ import linhai.example.com.adapter.MusicListAdapter;
 import linhai.example.com.audio.AudioInfo;
 import linhai.example.com.constant.GlobalConstant;
 import linhai.example.com.utils.AudioUtils;
+import linhai.example.com.utils.ImageUtils;
+
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -120,8 +123,9 @@ public class MainActivity extends Activity {
     	songImageBtn = (ImageButton)findViewById(R.id.playingimageview);
     	songNameDisplay = (TextView)findViewById(R.id.mylocal_song_name_text);
     	setPauseOrPlayBtn();
+        setSongImageBtn();
     }
-    
+
     private void setButtonListener(){
     	Log.i(TAG, "setButtonListener");
     	ViewOnClickListener viewOnClickListener = new ViewOnClickListener();
@@ -140,8 +144,19 @@ public class MainActivity extends Activity {
     		pauseOrstartBtn.setBackgroundResource(R.drawable.pause_button);
     	}
     	songNameDisplay.setText(audioInfoList.get(curMusicPos).getDisplayName());
+        setSongImageBtn();
     }
-    
+
+    private void setSongImageBtn(){
+        Bitmap bitmap = ImageUtils.getInstance().getArtwork(MainActivity.this, audioInfoList.get(curMusicPos).getId(), audioInfoList.get(curMusicPos).getAlbumId(), true, false);
+        if(bitmap == null){
+            songImageBtn.setBackgroundResource(R.drawable.playing_button);
+        }else{
+            songImageBtn.setBackground(null);
+            songImageBtn.setImageBitmap(bitmap);
+        }
+    }
+
     private class ViewOnClickListener implements OnClickListener{
     	
 		@Override

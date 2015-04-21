@@ -134,7 +134,7 @@ public class ImageUtils{
                 if(small){  
                     options.inSampleSize = computeSampleSize(options, 65);  
                 } else{  
-                    options.inSampleSize = computeSampleSize(options, 600);  
+                    options.inSampleSize = computeSampleSize(options, 100);
                 }  
                 // ���ǵõ������ű��������ڿ�ʼ��ʽ����Bitmap����  
                 options.inJustDecodeBounds = false;  

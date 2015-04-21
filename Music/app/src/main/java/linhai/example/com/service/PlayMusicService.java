@@ -2,23 +2,15 @@ package linhai.example.com.service;
 
 import java.io.IOException;
 import java.util.List;
-
-//import com.example.constant.GlobalConstant;
-//import com.example.lrc.LrcContent;
-//import com.example.lrc.LrcHandler;
-//import com.example.musicplayer.MainActivity;
 import linhai.example.com.constant.GlobalConstant;
 import linhai.example.com.lrc.LrcContent;
 import linhai.example.com.lrc.LrcHandler;
 import linhai.example.com.music.MainActivity;
-
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.util.Log;
 
 public class PlayMusicService extends Service{
@@ -37,10 +29,10 @@ public class PlayMusicService extends Service{
 	private String mediaPlayerSongPath;
 	private static int mediaPlayer_currentTime;
 	private static int mediaPlayer_duration;
-	private static int currentPlayPos;
+	private static int currentPlayPos = 0;
 	
 	/*** a runnable ***/
-	//private updateRunnable updatRun;
+	//private serviceRunnable updatRun;
 	
 	@Override
 	public IBinder onBind(Intent intent){
@@ -54,7 +46,8 @@ public class PlayMusicService extends Service{
 		mediaPlayer = new MediaPlayer();
 		
 		//start a thread
-		(new Thread(new updateRunnable())).start();
+        serviceRunnable sr = new serviceRunnable();
+        (new Thread(sr)).start();
 		
 		/**
 		 * �������ֲ������ʱ�ļ�����
@@ -261,13 +254,15 @@ public class PlayMusicService extends Service{
 		//return mediaPlayer.getCurrentPosition();
 	}
 	
-    private class updateRunnable implements Runnable{
+    private class serviceRunnable implements Runnable{
     	@Override
     	public void run(){
     		while(true){
+                Log.d(TAG, "serviceRunnable");
     			if(MainActivity.bPlayingFlag == true){
     				if(mediaPlayer != null){
     					if(mediaPlayer.isPlaying()){
+                            Log.d(TAG, "mediaPlayer.isplaying()");
     						currentPlayPos = mediaPlayer.getCurrentPosition();
     					}
     				}
