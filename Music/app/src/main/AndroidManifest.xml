@@ -9,14 +9,18 @@
         android:targetSdkVersion="17" />
 
     <application>
+
+        <!-- Music Manager Activity -->
         <activity
          	android:name="linhai.example.com.music.MusicManagerActivity">
        	</activity>
-        	
+
+        <!-- Main Activity -->
         <activity
             android:name="linhai.example.com.music.MainActivity" >
         </activity>
-    
+
+        <!-- Animation Activity -->
         <activity
             android:name="linhai.example.com.music.AnimationActivity">
             <intent-filter>
@@ -25,10 +29,31 @@
             </intent-filter>
         </activity>
 
+        <!-- Playing Activity -->
         <activity
             android:name="linhai.example.com.music.PlayingActivity">
         </activity>
-        
+
+        <!-- Music Collect Activity -->
+        <activity
+            android:name="linhai.example.com.music.MusicCollectActivity">
+        </activity>
+
+        <!-- Music History Activity -->
+        <activity
+            android:name="linhai.example.com.music.MusicHistoryActivity">
+        </activity>
+
+        <!-- Music Search Activity -->
+        <activity
+            android:name="linhai.example.com.music.MusicSearchActivity">
+        </activity>
+
+        <!-- Music Setting Activity -->
+        <activity
+            android:name="linhai.example.com.music.MusicSettingActivity">
+        </activity>
+
         <!-- Play Music Service-->
         <service android:name="linhai.example.com.service.PlayMusicService">
            	<intent-filter>

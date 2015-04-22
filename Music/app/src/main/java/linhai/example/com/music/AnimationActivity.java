@@ -26,6 +26,9 @@ import android.widget.Toast;
 import com.example.musicplayer.R;
 import android.view.View;
 
+import linhai.example.com.audio.AudioInfo;
+import linhai.example.com.utils.AudioUtils;
+
 public class AnimationActivity extends Activity {
 
 	//private List<songInfo> musicList;
@@ -41,12 +44,16 @@ public class AnimationActivity extends Activity {
 
 	//private  Context Aminationcontext; 
 
+    public static List<AudioInfo> audioInfoList = null;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		//setContentView();
 		setContentView(R.layout.activity_amination);
+        audioInfoList = AudioUtils.getInstance().getAudioInfoList(AnimationActivity.this);
+
 		//musicList = laudio.getLocalAudioList();
 		//PushManager.getInstance().initialize(this.getApplicationContext());
 		//Aminationcontext = this.getApplicationContext();
@@ -137,4 +144,9 @@ public class AnimationActivity extends Activity {
 		db.close();*/
 
 	}
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+    }
 }

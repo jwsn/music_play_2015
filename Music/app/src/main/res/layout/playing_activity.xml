@@ -28,13 +28,13 @@
             android:text="没有播放中的歌曲"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
-			<ImageButton
-			    android:id="@+id/my_collect"
-			    android:layout_width="wrap_content"
-			    android:layout_height="wrap_content"
-			    android:layout_alignParentRight="true"
-			    android:layout_alignParentTop="true"
-			    android:background="@drawable/notcollect" />
+		<ImageButton
+			android:id="@+id/my_collect"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_alignParentTop="true"
+			android:background="@drawable/notcollect" />
 	</RelativeLayout>
 	
 	<RelativeLayout

@@ -66,7 +66,7 @@ public class MainActivity extends Activity {
 	//private GlobalConstant.PlayMode playMode = GlobalConstant.PlayMode.NORMAL_PLAY_MODE;
 	public static int playMode = GlobalConstant.NORMAL_PLAY_MODE;
 	
-	private long exitTime = 0;
+	//private long exitTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +77,7 @@ public class MainActivity extends Activity {
         /* init music list view*/
         musicListPos = 0;
         musicListView = (ListView) findViewById(R.id.music_list);
-        audioInfoList = AudioUtils.getInstance().getAudioInfoList(MainActivity.this);
+        audioInfoList = AnimationActivity.audioInfoList;
         musicListAdapter = new MusicListAdapter(this, audioInfoList);
         musicListView.setAdapter(musicListAdapter);
         musicListView.setOnItemClickListener(new OnItemClickListener(){
@@ -419,12 +419,13 @@ public class MainActivity extends Activity {
         	break;
     	}
     }
-    
+
+    /*
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event){
 	    if(keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN){   
 	        if((System.currentTimeMillis()-exitTime) > 2000){  
-	            Toast.makeText(getApplicationContext(), "�ٰ�һ���˳�����", Toast.LENGTH_SHORT).show();                                
+	            Toast.makeText(getApplicationContext(), "再按一次退出哦", Toast.LENGTH_SHORT).show();
 	            exitTime = System.currentTimeMillis();
 	            
 	        } else {
@@ -438,6 +439,7 @@ public class MainActivity extends Activity {
 	    }
 	    return super.onKeyUp(keyCode, event);
     }
+    */
     
     /*** listen call state changed ***/
     private class PhoneStateListenHander extends PhoneStateListener{
@@ -460,7 +462,14 @@ public class MainActivity extends Activity {
     		}
     	}
     }
-    
+
+    /*** back key press ***/
+    @Override
+    public void onBackPressed(){
+        Log.d(TAG, "onBackPressed");
+        finish();
+    }
+
     @Override
     protected void onDestroy(){
     	super.onDestroy();

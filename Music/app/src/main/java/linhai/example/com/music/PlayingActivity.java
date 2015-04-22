@@ -2,17 +2,20 @@ package linhai.example.com.music;
 
 import java.util.List;
 import java.util.Random;
-
 import linhai.example.com.adapter.MusicListAdapter;
 import linhai.example.com.constant.GlobalConstant;
 import linhai.example.com.lrc.LrcView;
 import linhai.example.com.service.PlayMusicService;
+import linhai.example.com.databaseHelper.MusicDatabaseHelper;
 import linhai.example.com.utils.AudioUtils;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -27,7 +30,6 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.example.musicplayer.R;
 
 public class PlayingActivity extends Activity {
@@ -57,6 +59,7 @@ public class PlayingActivity extends Activity {
 	private ImageButton nextBtn;
 	private ImageButton preBtn;
 	private ImageButton backBtn;
+    private ImageButton collBtn;
 	private SeekBar audioTrackBar;
 	private TextView curTrackBarTime;
 	private TextView finTrackBarTime;
@@ -94,7 +97,9 @@ public class PlayingActivity extends Activity {
 	
 	/*** Receiver ***/
 	private  PlayingActivityReceiver PAReceiver;
-	
+
+    /*** dataBaseHelper ***/
+    private MusicDatabaseHelper dbHelper = new MusicDatabaseHelper(this, "collect.db", null, 1);
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,6 +173,7 @@ public class PlayingActivity extends Activity {
     	curTrackBarTime = (TextView)findViewById(R.id.current_time_text);
     	finTrackBarTime = (TextView)findViewById(R.id.final_time_text);
     	mLrcView = (LrcView)findViewById(R.id.song_lrc_text);
+        collBtn = (ImageButton)findViewById(R.id.my_collect);
     	setLrcView();
     	setTrackBarTime();
     	setPauseOrPlayBtn();
@@ -181,6 +187,7 @@ public class PlayingActivity extends Activity {
     	nextBtn.setOnClickListener(viewOnClickListener);
     	preBtn.setOnClickListener(viewOnClickListener);
     	backBtn.setOnClickListener(viewOnClickListener);
+        collBtn.setOnClickListener(viewOnClickListener);
     	//curTrackBarTime.setText("00:00");
     	//finTrackBarTime.setText(duration);
     	audioTrackBar.setOnSeekBarChangeListener(onSeekBarChangeListener);
@@ -226,6 +233,30 @@ public class PlayingActivity extends Activity {
 	        	finish();
 	    	}
 	    	break;
+            case R.id.my_collect:{
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
+                Cursor cursor = db.query("collect", null, null, null, null, null, null);
+                boolean isInserted = false;
+                if(cursor.moveToFirst()) {
+                    do {
+                        int pos = cursor.getInt(cursor.getColumnIndex("pos"));
+                        if (pos == MainActivity.curMusicPos) {
+                            isInserted = true;
+                        }
+                    } while (cursor.moveToNext());
+                }
+                if(isInserted == false) {
+                    Log.d(TAG, "insert the name = " + MainActivity.audioInfoList.get(MainActivity.curMusicPos).getTitle());
+                    Log.d(TAG, "insert the path = " + MainActivity.audioInfoList.get(MainActivity.curMusicPos).getUrl());
+                    Log.d(TAG, "insert the pos = " + MainActivity.curMusicPos);
+                    ContentValues values = new ContentValues();
+                    values.put("name", MainActivity.audioInfoList.get(MainActivity.curMusicPos).getTitle());
+                    values.put("path", MainActivity.audioInfoList.get(MainActivity.curMusicPos).getUrl());
+                    values.put("pos", MainActivity.curMusicPos);
+                    db.insert("collect", null, values);
+                }
+            }
+            break;
 	    	default:{
 	    	}
 	    	break;
