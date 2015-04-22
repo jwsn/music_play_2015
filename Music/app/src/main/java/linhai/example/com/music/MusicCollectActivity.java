@@ -42,7 +42,21 @@ public class MusicCollectActivity extends Activity {
         if(cursor.moveToFirst()){
             do{
                int pos = cursor.getInt(cursor.getColumnIndex("pos"));
-               audioInfoList.add(AnimationActivity.audioInfoList.get(pos));
+               AudioInfo audioInfo = new AudioInfo();
+               //audioInfoList.add(AnimationActivity.audioInfoList.get(pos));
+               AudioInfo temp = AnimationActivity.audioInfoList.get(pos);
+               audioInfo.setId(temp.getId());
+               audioInfo.setTitle(temp.getTitle());
+               audioInfo.setArtist(temp.getArtist());
+               audioInfo.setAlbum(temp.getAlbum());
+               audioInfo.setDisplayName(temp.getDisplayName());
+               audioInfo.setAlbumId(temp.getAlbumId());
+               audioInfo.setDuration(temp.getDuration());
+               audioInfo.setSize(temp.getSize());
+               audioInfo.setUrl(temp.getUrl());
+               audioInfoList.add(audioInfo);
+
+
             }while(cursor.moveToNext());
         }
 
@@ -50,7 +64,7 @@ public class MusicCollectActivity extends Activity {
 
         musicListAdapter = new MusicListAdapter(this, audioInfoList);
         //need debug
-        //collectListView.setAdapter(musicListAdapter);
+        collectListView.setAdapter(musicListAdapter);
 
     }
 
