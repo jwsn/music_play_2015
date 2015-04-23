@@ -6,6 +6,8 @@ import linhai.example.com.constant.GlobalConstant;
 import linhai.example.com.lrc.LrcContent;
 import linhai.example.com.lrc.LrcHandler;
 import linhai.example.com.music.MainActivity;
+import linhai.example.com.utils.ControlUtils;
+
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -259,7 +261,7 @@ public class PlayMusicService extends Service{
     	public void run(){
     		while(true){
                 Log.d(TAG, "serviceRunnable");
-    			if(MainActivity.bPlayingFlag == true){
+    			if(ControlUtils.bPlayingFlag == true){
     				if(mediaPlayer != null){
     					if(mediaPlayer.isPlaying()){
                             Log.d(TAG, "mediaPlayer.isplaying()");

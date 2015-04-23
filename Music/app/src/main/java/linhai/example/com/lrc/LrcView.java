@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import linhai.example.com.music.MainActivity;
+import linhai.example.com.utils.ControlUtils;
 
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
@@ -161,7 +162,7 @@ public class LrcView extends View implements ILrcView{
 		if(mLrcContents == null || mLrcContents.size() == 0){
 			//画默认的显示文字
 			mPaintForHighLightLrc.setTextSize(DEFAULT_SIZE_FOR_HIGHT_LIGHT_LRC);
-			String currentSongName = MainActivity.audioInfoList.get(MainActivity.curMusicPos).getTitle();//getAudioList().getCurPos().getName();
+			String currentSongName = MainActivity.audioInfoList.get(ControlUtils.curMusicPos).getTitle();//getAudioList().getCurPos().getName();
 			float textWidth = mPaintForHighLightLrc.measureText(currentSongName);
 			float textX = (getWidth()-textWidth)/2;
 			canvas.drawText(currentSongName, textX, getHeight()/2-DEFAULT_SIZE_FOR_HIGHT_LIGHT_LRC, mPaintForHighLightLrc);

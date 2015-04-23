@@ -1,5 +1,7 @@
 package linhai.example.com.constant;
 
+import com.example.musicplayer.R;
+
 public class GlobalConstant{
 	
 	public static final String MUSIC_SERVICE = "com.example.service.PlayMusicService";
@@ -55,6 +57,13 @@ public class GlobalConstant{
 	public final static int HISTORY_MUSIC = 2;
 	public final static int SEARCH_MUSIC = 3;
 	public final static int SETTING_MUSIC = 4;
-	
+
+    /*** play mode image ***/
+    public static int [] playMode = {
+            R.drawable.playmode_normal,
+            R.drawable.playmode_repeate_all,
+            R.drawable.playmode_repeate_single,
+            R.drawable.playmode_repeate_random
+    };
 	
 }

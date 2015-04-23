@@ -10,6 +10,7 @@ import linhai.example.com.adapter.MusicListAdapter;
 import linhai.example.com.audio.AudioInfo;
 import linhai.example.com.constant.GlobalConstant;
 import linhai.example.com.utils.AudioUtils;
+import linhai.example.com.utils.ControlUtils;
 import linhai.example.com.utils.ImageUtils;
 
 import android.graphics.Bitmap;
@@ -44,7 +45,7 @@ public class MainActivity extends Activity {
 	public static List<AudioInfo> audioInfoList = null;
 	private MusicListAdapter musicListAdapter;
 	private int musicListPos;
-	public static int curMusicPos;
+
 	
 	/*** image button ***/
 	private ImageButton pauseOrstartBtn;
@@ -53,18 +54,19 @@ public class MainActivity extends Activity {
 	private ImageButton songImageBtn;
 	private ImageButton playModeBtn;
 	private TextView songNameDisplay;
-	
+
 	/*** control flag ***/
-	public static boolean bPlayingFlag = false;
-	public static boolean bPauseFlag = true;
-	public static boolean bFirstTimePlayFlag = true;
+	//public static boolean bPlayingFlag = false;
+	//public static boolean bPauseFlag = true;
+	//public static boolean bFirstTimePlayFlag = true;
+    //public static int curMusicPos;
+    //public static int playMode = GlobalConstant.NORMAL_PLAY_MODE;
 
 	/*** Receiver ***/
 	public MainActivityReceiver maReceiver;
 	
 	/*** play mode control ***/
 	//private GlobalConstant.PlayMode playMode = GlobalConstant.PlayMode.NORMAL_PLAY_MODE;
-	public static int playMode = GlobalConstant.NORMAL_PLAY_MODE;
 	
 	//private long exitTime = 0;
 
@@ -84,11 +86,11 @@ public class MainActivity extends Activity {
         	@Override
         	public void onItemClick(AdapterView<?> parent, View view, int position, long id){
             	Log.d(TAG, "setOnItemClickListener->onItemClick");
-            	curMusicPos = position;
-        		AudioInfo audioInfo = audioInfoList.get(curMusicPos);
-        		bFirstTimePlayFlag = false;
-        		bPlayingFlag = true;
-        		bPauseFlag = false;
+            	ControlUtils.curMusicPos = position;
+        		AudioInfo audioInfo = audioInfoList.get(ControlUtils.curMusicPos);
+                ControlUtils.bFirstTimePlayFlag = false;
+                ControlUtils.bPlayingFlag = true;
+                ControlUtils.bPauseFlag = false;
         		setPauseOrPlayBtn();
         		Intent intent = new Intent();
         		intent.setAction(GlobalConstant.MUSIC_SERVICE);
@@ -120,6 +122,7 @@ public class MainActivity extends Activity {
     	nextBtn = (ImageButton)findViewById(R.id.next_btn);
     	preBtn = (ImageButton)findViewById(R.id.pre_btn);
     	playModeBtn = (ImageButton)findViewById(R.id.playmode);
+        playModeBtn.setBackgroundResource(GlobalConstant.playMode[ControlUtils.playMode]);
     	songImageBtn = (ImageButton)findViewById(R.id.playingimageview);
     	songNameDisplay = (TextView)findViewById(R.id.mylocal_song_name_text);
     	setPauseOrPlayBtn();
@@ -138,17 +141,17 @@ public class MainActivity extends Activity {
     
     private void setPauseOrPlayBtn(){
     	Log.d(TAG, "setPauseOrPlayBtn");
-    	if(MainActivity.bPauseFlag == true){
+    	if(ControlUtils.bPauseFlag == true){
     		pauseOrstartBtn.setBackgroundResource(R.drawable.play_button);
     	}else{
     		pauseOrstartBtn.setBackgroundResource(R.drawable.pause_button);
     	}
-    	songNameDisplay.setText(audioInfoList.get(curMusicPos).getDisplayName());
+    	songNameDisplay.setText(audioInfoList.get(ControlUtils.curMusicPos).getDisplayName());
         setSongImageBtn();
     }
 
     private void setSongImageBtn(){
-        Bitmap bitmap = ImageUtils.getInstance().getArtwork(MainActivity.this, audioInfoList.get(curMusicPos).getId(), audioInfoList.get(curMusicPos).getAlbumId(), true, false);
+        Bitmap bitmap = ImageUtils.getInstance().getArtwork(MainActivity.this, audioInfoList.get(ControlUtils.curMusicPos).getId(), audioInfoList.get(ControlUtils.curMusicPos).getAlbumId(), true, false);
         if(bitmap == null){
             songImageBtn.setBackgroundResource(R.drawable.playing_button);
         }else{
@@ -196,24 +199,24 @@ public class MainActivity extends Activity {
     
     private void preBtnClickHandler(){
     	Log.d(TAG, "preBtnClickHandler");
-    	
-    	setCurrentPlayPositionWhenPlayPre();
-		if(curMusicPos < 0){
-			curMusicPos = 0;
-			Toast.makeText(MainActivity.this, "�Ѿ�û����һ����", Toast.LENGTH_SHORT).show();
+
+        ControlUtils.curMusicPos = ControlUtils.getInstance().setCurrentPlayPositionWhenPlayPre(ControlUtils.curMusicPos, audioInfoList);
+		if(ControlUtils.curMusicPos < 0){
+            ControlUtils.curMusicPos = 0;
+			Toast.makeText(MainActivity.this, "没有上一首啦", Toast.LENGTH_SHORT).show();
 		}else{
 			setPauseOrPlayBtn();
-			if(bPauseFlag == true){
-				bFirstTimePlayFlag = true;
+			if(ControlUtils.bPauseFlag == true){
+                ControlUtils.bFirstTimePlayFlag = true;
 				return;
 			}
 
-			bPlayingFlag = true;
-			bPauseFlag = false;
-			bFirstTimePlayFlag = false;
+            ControlUtils.bPlayingFlag = true;
+            ControlUtils.bPauseFlag = false;
+            ControlUtils.bFirstTimePlayFlag = false;
 			Intent intent = new Intent();
 			intent.setAction(GlobalConstant.MUSIC_SERVICE);
-			intent.putExtra(GlobalConstant.SONG_PATH_KEY, audioInfoList.get(curMusicPos).getUrl());
+			intent.putExtra(GlobalConstant.SONG_PATH_KEY, audioInfoList.get(ControlUtils.curMusicPos).getUrl());
 			intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_PRE);
 			startService(intent);
 		}
@@ -221,25 +224,25 @@ public class MainActivity extends Activity {
     
     private void nextBtnClickHandler(){
     	Log.d(TAG, "nextBtnClickHandler");
-    	
-    	setCurrentPlayPositionWhenPlayNext();
-		if( curMusicPos >= audioInfoList.size() ){
-			curMusicPos = audioInfoList.size() - 1;
-			Toast.makeText(MainActivity.this, "�������һ����", Toast.LENGTH_SHORT).show();
+
+        ControlUtils.curMusicPos = ControlUtils.getInstance().setCurrentPlayPositionWhenPlayNext(ControlUtils.curMusicPos, audioInfoList);
+		if( ControlUtils.curMusicPos >= audioInfoList.size() ){
+            ControlUtils.curMusicPos = audioInfoList.size() - 1;
+			Toast.makeText(MainActivity.this, "这是最后一首啦", Toast.LENGTH_SHORT).show();
 		}else{
 			setPauseOrPlayBtn();
-			if(bPauseFlag == true){
-				bFirstTimePlayFlag = true;
+			if(ControlUtils.bPauseFlag == true){
+                ControlUtils.bFirstTimePlayFlag = true;
 				return;
 			}
 
-			bPlayingFlag = true;
-			bPauseFlag = false;
-			bFirstTimePlayFlag = false;
+            ControlUtils.bPlayingFlag = true;
+            ControlUtils.bPauseFlag = false;
+            ControlUtils.bFirstTimePlayFlag = false;
 			Intent intent = new Intent();
 			intent.setAction(GlobalConstant.MUSIC_SERVICE);
 			intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_NEXT);
-			intent.putExtra(GlobalConstant.SONG_PATH_KEY, audioInfoList.get(curMusicPos).getUrl());
+			intent.putExtra(GlobalConstant.SONG_PATH_KEY, audioInfoList.get(ControlUtils.curMusicPos).getUrl());
 			startService(intent);
 		}
     }
@@ -248,27 +251,27 @@ public class MainActivity extends Activity {
     	Log.d(TAG, "pauseOrstartBtnClickHandler");
     	
 		Intent intent = new Intent();
-		if(bFirstTimePlayFlag == true){
-			bPlayingFlag = true;
-			bPauseFlag = false;
-			bFirstTimePlayFlag = false;
+		if(ControlUtils.bFirstTimePlayFlag == true){
+            ControlUtils.bPlayingFlag = true;
+            ControlUtils.bPauseFlag = false;
+            ControlUtils.bFirstTimePlayFlag = false;
 			setPauseOrPlayBtn();
 			intent.setAction(GlobalConstant.MUSIC_SERVICE);
-			intent.putExtra(GlobalConstant.SONG_PATH_KEY,audioInfoList.get(curMusicPos).getUrl());
+			intent.putExtra(GlobalConstant.SONG_PATH_KEY,audioInfoList.get(ControlUtils.curMusicPos).getUrl());
 			intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_FIRST);
 			startService(intent);
 		}
-		else if(bPlayingFlag == false){
-			bPlayingFlag = true;
-			bPauseFlag = false;
+		else if(ControlUtils.bPlayingFlag == false){
+            ControlUtils.bPlayingFlag = true;
+            ControlUtils.bPauseFlag = false;
 			setPauseOrPlayBtn();
 			intent.setAction(GlobalConstant.MUSIC_SERVICE);
 			intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_RESUME);
 			startService(intent);
 			
 		}else{
-			bPlayingFlag = false;
-			bPauseFlag = true;
+            ControlUtils.bPlayingFlag = false;
+            ControlUtils.bPauseFlag = true;
 			setPauseOrPlayBtn();
 			intent.setAction(GlobalConstant.MUSIC_SERVICE);
 			intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_PAUSE);
@@ -278,29 +281,29 @@ public class MainActivity extends Activity {
     
     private void playModeBtnClickHandler(){
     	Log.d(TAG, "playModeBtnClickHandler");
-    	switch(playMode){
+    	switch(ControlUtils.playMode){
     		case GlobalConstant.NORMAL_PLAY_MODE:{
-    			playMode = GlobalConstant.REPEAT_ALL_PLAY_MODE;
+                ControlUtils.playMode = GlobalConstant.REPEAT_ALL_PLAY_MODE;
     			playModeBtn.setBackgroundResource(R.drawable.playmode_repeate_all);
-    			Toast.makeText(this, "ѭ������", Toast.LENGTH_SHORT).show();
+    			Toast.makeText(this, "循环播放", Toast.LENGTH_SHORT).show();
     		}
     		break;
     		case GlobalConstant.REPEAT_ALL_PLAY_MODE:{
-    			playMode = GlobalConstant.REPEAT_ONE_PLAY_MODE;
+                ControlUtils.playMode = GlobalConstant.REPEAT_ONE_PLAY_MODE;
     			playModeBtn.setBackgroundResource(R.drawable.playmode_repeate_single);
-    			Toast.makeText(this, "����ѭ��", Toast.LENGTH_SHORT).show();
+    			Toast.makeText(this, "单曲循环", Toast.LENGTH_SHORT).show();
     		}
     		break;
     		case GlobalConstant.REPEAT_ONE_PLAY_MODE:{
-    			playMode = GlobalConstant.RANDOM_PLAY_MODE;
+                ControlUtils.playMode = GlobalConstant.RANDOM_PLAY_MODE;
     			playModeBtn.setBackgroundResource(R.drawable.playmode_repeate_random);
-    			Toast.makeText(this, "�������", Toast.LENGTH_SHORT).show();
+    			Toast.makeText(this, "随机播放", Toast.LENGTH_SHORT).show();
     		}
     		break;
     		case GlobalConstant.RANDOM_PLAY_MODE:{
-    			playMode = GlobalConstant.NORMAL_PLAY_MODE;
+                ControlUtils.playMode = GlobalConstant.NORMAL_PLAY_MODE;
     			playModeBtn.setBackgroundResource(R.drawable.playmode_normal);
-    			Toast.makeText(this, "˳�򲥷�", Toast.LENGTH_SHORT).show();
+    			Toast.makeText(this, "顺序播放", Toast.LENGTH_SHORT).show();
     		}
     		break;
     		default:
@@ -332,26 +335,26 @@ public class MainActivity extends Activity {
     		}
     	}
     }
-    
+    /*
     private void setCurrentPlayPositionWhenPlayPre(){
     	Log.d(TAG, "setCurrentPlayPositionWhenPlayPre");
 
-    	switch(playMode){
+    	switch(ControlUtils.playMode){
     		case GlobalConstant.NORMAL_PLAY_MODE:{
-    			curMusicPos--;
+                ControlUtils.curMusicPos--;
     		}
     		break;
     		case GlobalConstant.REPEAT_ALL_PLAY_MODE:{
-    			curMusicPos--;
-    			if(curMusicPos < 0){
-    				curMusicPos = audioInfoList.size() - 1;
+                ControlUtils.curMusicPos--;
+    			if(ControlUtils.curMusicPos < 0){
+                    ControlUtils.curMusicPos = audioInfoList.size() - 1;
     			}
     		}
     		break;
     		case GlobalConstant.RANDOM_PLAY_MODE:{
     			Random rand = new Random();
     			int randPos = rand.nextInt(audioInfoList.size());
-    			curMusicPos = randPos % (audioInfoList.size());
+                ControlUtils.curMusicPos = randPos % (audioInfoList.size());
     		}
     		break;
     		case GlobalConstant.REPEAT_ONE_PLAY_MODE:
@@ -359,27 +362,27 @@ public class MainActivity extends Activity {
     		break;
     	}
     	//return curMusicPos;
-    }
-    
+    }*/
+    /*
     private void setCurrentPlayPositionWhenPlayNext(){
     	Log.d(TAG, "setCurrentPlayPositionWhenPlayNext");
 
-    	switch(playMode){
+    	switch(ControlUtils.playMode){
     		case GlobalConstant.NORMAL_PLAY_MODE:{
-    			curMusicPos++;
+                ControlUtils.curMusicPos++;
     		}
     		break;
     		case GlobalConstant.REPEAT_ALL_PLAY_MODE:{
-    			curMusicPos++;
-    			if(curMusicPos > audioInfoList.size() - 1){
-    				curMusicPos = 0;
+                ControlUtils.curMusicPos++;
+    			if(ControlUtils.curMusicPos > audioInfoList.size() - 1){
+                    ControlUtils.curMusicPos = 0;
     			}
     		}
     		break;
     		case GlobalConstant.RANDOM_PLAY_MODE:{
     			Random rand = new Random();
     			int randPos = rand.nextInt(audioInfoList.size());
-    			curMusicPos = randPos % (audioInfoList.size());
+                ControlUtils.curMusicPos = randPos % ( n.size());
     		}
     		break;
     		case GlobalConstant.REPEAT_ONE_PLAY_MODE:
@@ -387,14 +390,16 @@ public class MainActivity extends Activity {
     		break;
     	}
     }
-    
+    */
+    /*
     public static List<AudioInfo> getAudioList(){
     	return audioInfoList;
     }
     
     public static int getCurPos(){
-    	return curMusicPos;
+    	return ControlUtils.curMusicPos;
     }
+    */
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -452,7 +457,7 @@ public class MainActivity extends Activity {
     		break;
     		case TelephonyManager.CALL_STATE_OFFHOOK:
     		case TelephonyManager.CALL_STATE_RINGING:{
-    			 if(bPlayingFlag == true){
+    			 if(ControlUtils.bPlayingFlag == true){
     				 pauseOrstartBtnClickHandler();
     			 }
     		}
