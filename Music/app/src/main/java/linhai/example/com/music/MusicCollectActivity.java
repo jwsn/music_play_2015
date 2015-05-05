@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -18,6 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import linhai.example.com.adapter.MusicListAdapter;
+import linhai.example.com.adapter.MyAdapter;
+import linhai.example.com.adapter.MyLinearLayout;
+import linhai.example.com.adapter.MyListView;
 import linhai.example.com.audio.AudioInfo;
 import linhai.example.com.constant.GlobalConstant;
 import linhai.example.com.databaseHelper.MusicDatabaseHelper;
@@ -27,7 +31,7 @@ import linhai.example.com.utils.ImageUtils;
 /**
  * Created by linhai on 15/4/22.
  */
-public class MusicCollectActivity extends Activity {
+public class MusicCollectActivity extends Activity implements MyLinearLayout.OnScrollListener, View.OnClickListener{
     private static final String TAG = "MusicCollectActivity";
 
     private MusicDatabaseHelper dbHelper; //= new MusicDatabaseHelper(this, "collect.db", null, 1);
@@ -35,7 +39,9 @@ public class MusicCollectActivity extends Activity {
     private ListView collectListView;
     private List<AudioInfo> audioInfoList = new ArrayList<AudioInfo>();
     private MusicListAdapter musicListAdapter;
-
+    private List<MyAdapter.DataHolder> mdataList = new ArrayList<MyAdapter.DataHolder>();
+    private MyAdapter myAdapter;
+    private MyLinearLayout mLastScrollView;
 
     /*** image button ***/
     private ImageButton pauseOrstartBtn;
@@ -45,15 +51,19 @@ public class MusicCollectActivity extends Activity {
     private ImageButton playModeBtn;
     private TextView songNameDisplay;
 
+    /*** database ***/
+    private SQLiteDatabase db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.music_collect_activity);
 
-        collectListView = (ListView) findViewById(R.id.music_collect_list);
+        //collectListView = (ListView) findViewById(R.id.music_collect_list);
+        collectListView = (MyListView) findViewById(R.id.music_collect_list);
         dbHelper = new MusicDatabaseHelper(this, "collect.db", null, 1);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db = dbHelper.getWritableDatabase();
         Cursor cursor = db.query("collect", null, null, null, null, null, null);
 
         if(cursor.moveToFirst()){
@@ -73,15 +83,37 @@ public class MusicCollectActivity extends Activity {
                audioInfo.setUrl(temp.getUrl());
                audioInfoList.add(audioInfo);
 
-
+               MyAdapter.DataHolder dataholder = new MyAdapter.DataHolder();
+               dataholder.audioInfo = audioInfo;
+               mdataList.add(dataholder);
             }while(cursor.moveToNext());
         }
 
         if(audioInfoList.size() == 0) return;
 
-        musicListAdapter = new MusicListAdapter(this, audioInfoList);
-        collectListView.setAdapter(musicListAdapter);
-
+        //musicListAdapter = new MusicListAdapter(this, audioInfoList);
+        myAdapter = new MyAdapter(this, mdataList, this, this);
+        //collectListView.setAdapter(musicListAdapter);
+        collectListView.setAdapter(myAdapter);
+        collectListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id){
+                Log.d(TAG, "setOnItemClickListener->onItemClick");
+                ControlUtils.curCollPos = position;
+                AudioInfo audioInfo = audioInfoList.get(ControlUtils.curCollPos);
+                ControlUtils.bFirstTimePlayFlag = false;
+                ControlUtils.bPlayingFlag = true;
+                ControlUtils.bPauseFlag = false;
+                setPauseOrPlayBtn();
+                Intent intent = new Intent();
+                intent.setAction(GlobalConstant.MUSIC_SERVICE);
+                intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_FIRST);
+                //Intent intent = new Intent(MainActivity.this, PlayMusicService.class);
+                intent.putExtra(GlobalConstant.SONG_PATH_KEY, audioInfo.getUrl());
+                Log.d(TAG, "songpath = " + audioInfo.getUrl());
+                startService(intent);
+            }
+        });
         initButtonView();
         setButtonListener();
 
@@ -188,7 +220,7 @@ public class MusicCollectActivity extends Activity {
             ControlUtils.bFirstTimePlayFlag = false;
             Intent intent = new Intent();
             intent.setAction(GlobalConstant.MUSIC_SERVICE);
-            intent.putExtra(GlobalConstant.SONG_PATH_KEY, audioInfoList.get(ControlUtils.curMusicPos).getUrl());
+            intent.putExtra(GlobalConstant.SONG_PATH_KEY, audioInfoList.get(ControlUtils.curCollPos).getUrl());
             intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_PRE);
             startService(intent);
         }
@@ -214,7 +246,7 @@ public class MusicCollectActivity extends Activity {
             Intent intent = new Intent();
             intent.setAction(GlobalConstant.MUSIC_SERVICE);
             intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_NEXT);
-            intent.putExtra(GlobalConstant.SONG_PATH_KEY, audioInfoList.get(ControlUtils.curMusicPos).getUrl());
+            intent.putExtra(GlobalConstant.SONG_PATH_KEY, audioInfoList.get(ControlUtils.curCollPos).getUrl());
             startService(intent);
         }
     }
@@ -229,7 +261,7 @@ public class MusicCollectActivity extends Activity {
             ControlUtils.bFirstTimePlayFlag = false;
             setPauseOrPlayBtn();
             intent.setAction(GlobalConstant.MUSIC_SERVICE);
-            intent.putExtra(GlobalConstant.SONG_PATH_KEY,audioInfoList.get(ControlUtils.curMusicPos).getUrl());
+            intent.putExtra(GlobalConstant.SONG_PATH_KEY,audioInfoList.get(ControlUtils.curCollPos).getUrl());
             intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_FIRST);
             startService(intent);
         }
@@ -346,6 +378,36 @@ public class MusicCollectActivity extends Activity {
             break;
             default:
             break;
+        }
+    }
+
+    @Override
+    public void onScroll(MyLinearLayout view){
+        if(mLastScrollView != null){
+            mLastScrollView.smoothScrollTo(0, 0);
+        }
+        mLastScrollView = view;
+    }
+
+    @Override
+    public void onClick(View v){
+        if(v.getId() == R.id.del){
+            int pos = collectListView.getPositionForView(v);
+            myAdapter.removeItem(pos);
+            Cursor cursor = db.query("collect", null, null, null, null, null, null);
+            if(cursor.moveToFirst()){
+                do{
+                    //int p = cursor.getInt(cursor.getColumnIndex("pos"));
+                    String name = cursor.getString(cursor.getColumnIndex("name"));
+                    if(name.equals(audioInfoList.get(pos).getTitle()))
+                    {
+                        db.delete("collect", "name=?", new String[]{name});
+                        break;
+                    }
+                }while(cursor.moveToNext());
+            }
+            cursor.close();
+            audioInfoList.remove(pos);
         }
     }
 

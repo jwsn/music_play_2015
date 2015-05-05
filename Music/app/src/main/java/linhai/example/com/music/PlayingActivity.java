@@ -257,6 +257,7 @@ public class PlayingActivity extends Activity {
                     values.put("pos", ControlUtils.curMusicPos);
                     db.insert("collect", null, values);
                 }
+                cursor.close();
             }
             break;
 	    	default:{

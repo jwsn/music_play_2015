@@ -109,6 +109,10 @@ public class MusicManagerActivity extends Activity{
 
     @Override
     protected void onDestroy(){
+        Log.d(TAG, "onDestroy");
+        Intent stopIntent = new Intent();
+        stopIntent.setAction(GlobalConstant.MUSIC_SERVICE);
+        stopService(stopIntent);
     	super.onDestroy();
     }
 	

@@ -16,22 +16,14 @@ import linhai.example.com.utils.ImageUtils;
 import linhai.example.com.utils.AudioUtils;
 import com.example.musicplayer.R;
 
-/**
- * �Զ���������б�������
- * Ϊ�˷�����չ����Ϊ֮ǰû�п��ǵ���ʾר������
- *
- */
+
 public class MusicListAdapter extends BaseAdapter{
-	private Context context;		//�����Ķ�������
-	private List<AudioInfo> audioInfoList;	//���Mp3Info���õļ���
-	private AudioInfo audioInfo;		//Mp3Info��������
-	private int pos = -1;			//�б�λ��
+	private Context context;
+	private List<AudioInfo> audioInfoList;
+	private AudioInfo audioInfo;
+	private int pos = -1;
 	
-	/**
-	 * ���캯��
-	 * @param context	������
-	 * @param mp3Infos  ���϶���
-	 */
+
 	public MusicListAdapter(Context context, List<AudioInfo> AudioInfoList) {
 		this.context = context;
 		this.audioInfoList = AudioInfoList;
@@ -64,9 +56,9 @@ public class MusicListAdapter extends BaseAdapter{
 			viewHolder.musicTitle = (TextView) convertView.findViewById(R.id.music_title);
 			viewHolder.musicArtist = (TextView) convertView.findViewById(R.id.music_Artist);
 			viewHolder.musicDuration = (TextView) convertView.findViewById(R.id.music_duration);
-			convertView.setTag(viewHolder);			//��ʾ��View���һ����������ݣ�
+			convertView.setTag(viewHolder);
 		} else {
-			viewHolder = (ViewHolder)convertView.getTag();//ͨ��getTag�ķ���������ȡ����
+			viewHolder = (ViewHolder)convertView.getTag();
 		}
 		audioInfo = audioInfoList.get(position);
 		
@@ -81,25 +73,18 @@ public class MusicListAdapter extends BaseAdapter{
 			}
 			
 		}
-		viewHolder.musicTitle.setText(audioInfo.getTitle());			//��ʾ����
-		viewHolder.musicArtist.setText(audioInfo.getArtist());		//��ʾ������
-		viewHolder.musicDuration.setText(AudioUtils.getInstance().formatTime(audioInfo.getDuration()));//��ʾʱ��
+		viewHolder.musicTitle.setText(audioInfo.getTitle());
+		viewHolder.musicArtist.setText(audioInfo.getArtist());
+		viewHolder.musicDuration.setText(AudioUtils.getInstance().formatTime(audioInfo.getDuration()));
 		
 		return convertView;
 	}
 	
-	
-	/**
-	 * ����һ���ڲ���
-	 * ������Ӧ�Ŀؼ�����
-	 * @author wwj
-	 *
-	 */
+
 	public class ViewHolder {
-		//���пؼ���������
-		public ImageView albumImage;	//ר��ͼƬ
-		public TextView musicTitle;		//���ֱ���
-		public TextView musicDuration;	//����ʱ��
-		public TextView musicArtist;	//����������
+		public ImageView albumImage;
+		public TextView musicTitle;
+		public TextView musicDuration;
+		public TextView musicArtist;
 	}
 }

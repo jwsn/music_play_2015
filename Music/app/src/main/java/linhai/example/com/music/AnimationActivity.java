@@ -26,6 +26,8 @@ import android.widget.Toast;
 import com.example.musicplayer.R;
 import android.view.View;
 
+import linhai.example.com.adapter.MyAdapter;
+import linhai.example.com.adapter.MyListView;
 import linhai.example.com.audio.AudioInfo;
 import linhai.example.com.utils.AudioUtils;
 
@@ -45,6 +47,8 @@ public class AnimationActivity extends Activity {
 	//private  Context Aminationcontext; 
 
     public static List<AudioInfo> audioInfoList = null;
+    public static List<MyAdapter.DataHolder> mDataList = new ArrayList<MyAdapter.DataHolder>();
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +57,13 @@ public class AnimationActivity extends Activity {
 		//setContentView();
 		setContentView(R.layout.activity_amination);
         audioInfoList = AudioUtils.getInstance().getAudioInfoList(AnimationActivity.this);
+        if(audioInfoList != null && audioInfoList.size() > 0) {
+            for (int i = 0; i < audioInfoList.size(); i++) {
+                MyAdapter.DataHolder holder = new MyAdapter.DataHolder();
+                holder.audioInfo = audioInfoList.get(i);
+                mDataList.add(holder);
+            }
+        }
 
 		//musicList = laudio.getLocalAudioList();
 		//PushManager.getInstance().initialize(this.getApplicationContext());

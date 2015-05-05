@@ -7,6 +7,9 @@ import java.util.Random;
 //import com.example.constant.GlobalConstant;
 //import com.example.utils.AudioUtils;
 import linhai.example.com.adapter.MusicListAdapter;
+import linhai.example.com.adapter.MyAdapter;
+import linhai.example.com.adapter.MyLinearLayout;
+import linhai.example.com.adapter.MyListView;
 import linhai.example.com.audio.AudioInfo;
 import linhai.example.com.constant.GlobalConstant;
 import linhai.example.com.utils.AudioUtils;
@@ -37,7 +40,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.example.musicplayer.R;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements MyLinearLayout.OnScrollListener, View.OnClickListener{
 	private final String TAG = "MainActivity";
 	
 	/*** music list info ***/
@@ -70,6 +73,10 @@ public class MainActivity extends Activity {
 	
 	//private long exitTime = 0;
 
+    private MyLinearLayout mLastScrollView;
+    private MyAdapter myAdapter;
+    private MyListView myListView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,8 +86,12 @@ public class MainActivity extends Activity {
         /* init music list view*/
         musicListPos = 0;
         musicListView = (ListView) findViewById(R.id.music_list);
+        //myListView = (MyListView)findViewById(R.id.music_list);
         audioInfoList = AnimationActivity.audioInfoList;
         musicListAdapter = new MusicListAdapter(this, audioInfoList);
+        //myAdapter = new MyAdapter(this, AnimationActivity.mDataList, this, this);
+        //myListView.setAdapter(myAdapter);
+
         musicListView.setAdapter(musicListAdapter);
         musicListView.setOnItemClickListener(new OnItemClickListener(){
         	@Override
@@ -466,6 +477,22 @@ public class MainActivity extends Activity {
     		break;
     		}
     	}
+    }
+
+    @Override
+    public void onScroll(MyLinearLayout view){
+        if(mLastScrollView != null){
+            mLastScrollView.smoothScrollTo(0, 0);
+        }
+        mLastScrollView = view;
+    }
+
+    @Override
+    public void onClick(View v){
+        if(v.getId() == R.id.del){
+            int pos = myListView.getPositionForView(v);
+            myAdapter.removeItem(pos);
+        }
     }
 
     /*** back key press ***/

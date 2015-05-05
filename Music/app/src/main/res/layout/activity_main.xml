@@ -21,7 +21,8 @@
             android:textSize="35dip" />
 
 	</RelativeLayout>
-    
+
+
     <ListView
         android:layout_below="@+id/mylocal_playingButtonLayout"
         android:id="@+id/music_list"
@@ -32,15 +33,16 @@
 		android:dividerHeight="20px"
 		android:paddingLeft="15px"
 		android:drawSelectorOnTop="false">
-        <!--  
+<!--
         android:cacheColorHint="#ffffff"
         android:dividerHeight="1dip"
         android:listSelector="#00000000"
         android:layout_below="@+id/mylocal_playingButtonLayout"
         android:divider="@drawable/listview_line"
         android:layout_marginBottom="50dp" >
-        -->
+-->
     </ListView>
+
     
     <RelativeLayout
     	android:id="@+id/ButtonLayout"
