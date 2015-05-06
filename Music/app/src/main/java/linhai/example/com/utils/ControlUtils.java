@@ -27,6 +27,8 @@ public class ControlUtils {
     public static int curHisPos = 0;
 
 
+    public static int fromWhichActivity = 0;
+
     private ControlUtils(){}
 
     public static ControlUtils getInstance(){

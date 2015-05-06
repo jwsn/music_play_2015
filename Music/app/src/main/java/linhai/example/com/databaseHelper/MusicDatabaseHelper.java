@@ -15,6 +15,12 @@ public class MusicDatabaseHelper extends SQLiteOpenHelper{
     + "pos integer, "
     + "path text)";
 
+    public static final String CREATE_HISTORY = "create table history ("
+            + "id integer primary key autoincrement, "
+            + "name text, "
+            + "pos integer, "
+            + "path text)";
+
     private Context mContext;
 
     public MusicDatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version){
@@ -26,6 +32,7 @@ public class MusicDatabaseHelper extends SQLiteOpenHelper{
     @Override
     public void onCreate(SQLiteDatabase db){
         db.execSQL(CREATE_COLLECT);
+        db.execSQL(CREATE_HISTORY);
     }
 
     @Override

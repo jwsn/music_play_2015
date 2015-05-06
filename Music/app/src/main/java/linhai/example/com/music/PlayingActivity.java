@@ -3,6 +3,7 @@ package linhai.example.com.music;
 import java.util.List;
 import java.util.Random;
 import linhai.example.com.adapter.MusicListAdapter;
+import linhai.example.com.audio.AudioInfo;
 import linhai.example.com.constant.GlobalConstant;
 import linhai.example.com.lrc.LrcView;
 import linhai.example.com.service.PlayMusicService;
@@ -44,8 +45,9 @@ public class PlayingActivity extends Activity {
 	
 	/*** music list info ***/
 	private ListView musicListView;
-	//private List<AudioInfo> audioInfoList = null;
+	private List<AudioInfo> audioInfoList;
 	private MusicListAdapter musicListAdapter;
+    private int curPlayPos = 0;
 	
 	/*** Update Handler ***/
 	private Handler updateHandler;
@@ -88,7 +90,10 @@ public class PlayingActivity extends Activity {
 	//private Toast mLrcToast;
 	
 	//private SeekBar audioTrack;
-	
+
+    private String songName;
+    private String songPath;
+    private int fromWhichActivity;
 	/*** control flag ***/
 	//private boolean bPlayingFlag = false;
 	//private boolean bPauseFlag = false;
@@ -112,8 +117,7 @@ public class PlayingActivity extends Activity {
     	getDataFromIntent();
         initButtonView();
         setButtonListener();
-    	
-    	/*����һ��handler�����ڸ���UI�Ĳ���*/
+
     	updateHandler = new Handler(){
     		@Override
     		public void handleMessage(Message msg) {
@@ -161,7 +165,30 @@ public class PlayingActivity extends Activity {
     }
     
     private void getDataFromIntent(){
+        Intent intent = getIntent();
+        songName = intent.getStringExtra(GlobalConstant.SONG_NAME_KEY);
+        songPath = intent.getStringExtra(GlobalConstant.SONG_PATH_KEY);
+        fromWhichActivity = intent.getIntExtra(GlobalConstant.ACTIVITY_KEY, 0);
 
+        switch (fromWhichActivity){
+            case GlobalConstant.FROM_COLL_ACTIVITY:{
+                audioInfoList = MusicCollectActivity.audioInfoList;
+                curPlayPos = ControlUtils.curCollPos;
+            }
+            break;
+            case GlobalConstant.FROM_MAIN_ACTIVITY:{
+                audioInfoList = MainActivity.audioInfoList;
+                curPlayPos = ControlUtils.curMusicPos;
+            }
+            break;
+            case GlobalConstant.FROM_HIST_ACTIVITY:{
+                audioInfoList = MusicHistoryActivity.audioInfoList;
+                curPlayPos = ControlUtils.curHisPos;
+            }
+            break;
+            default:
+            break;
+        }
     }
     
     private void initButtonView(){
@@ -203,7 +230,7 @@ public class PlayingActivity extends Activity {
     
     private void setTrackBarTime(){
     	Log.d(TAG, "setTrackBarTime");
-    	String duration = TimeformatChange((int)MainActivity.audioInfoList.get(ControlUtils.curMusicPos).getDuration());
+    	String duration = TimeformatChange((int)audioInfoList.get(curPlayPos).getDuration());
     	//curTrackBarTime.setText("00:00");
     	finTrackBarTime.setText(duration);
     }
@@ -236,25 +263,30 @@ public class PlayingActivity extends Activity {
 	    	}
 	    	break;
             case R.id.my_collect:{
+                if(fromWhichActivity == GlobalConstant.FROM_COLL_ACTIVITY){
+                    break;
+                }
+
                 SQLiteDatabase db = dbHelper.getWritableDatabase();
                 Cursor cursor = db.query("collect", null, null, null, null, null, null);
                 boolean isInserted = false;
                 if(cursor.moveToFirst()) {
                     do {
-                        int pos = cursor.getInt(cursor.getColumnIndex("pos"));
-                        if (pos == ControlUtils.curMusicPos) {
+                        String name = cursor.getString(cursor.getColumnIndex("name"));
+                        if(name.equals(audioInfoList.get(curPlayPos).getTitle())){
                             isInserted = true;
+                            break;
                         }
                     } while (cursor.moveToNext());
                 }
                 if(isInserted == false) {
-                    Log.d(TAG, "insert the name = " + MainActivity.audioInfoList.get(ControlUtils.curMusicPos).getTitle());
-                    Log.d(TAG, "insert the path = " + MainActivity.audioInfoList.get(ControlUtils.curMusicPos).getUrl());
-                    Log.d(TAG, "insert the pos = " + ControlUtils.curMusicPos);
+                    //Log.d(TAG, "insert the name = " + MainActivity.audioInfoList.get(ControlUtils.curMusicPos).getTitle());
+                    //Log.d(TAG, "insert the path = " + MainActivity.audioInfoList.get(ControlUtils.curMusicPos).getUrl());
+                   // Log.d(TAG, "insert the pos = " + ControlUtils.curMusicPos);
                     ContentValues values = new ContentValues();
-                    values.put("name", MainActivity.audioInfoList.get(ControlUtils.curMusicPos).getTitle());
-                    values.put("path", MainActivity.audioInfoList.get(ControlUtils.curMusicPos).getUrl());
-                    values.put("pos", ControlUtils.curMusicPos);
+                    values.put("name", audioInfoList.get(curPlayPos).getTitle());
+                    values.put("path", audioInfoList.get(curPlayPos).getUrl());
+                    values.put("pos", curPlayPos);
                     db.insert("collect", null, values);
                 }
                 cursor.close();
@@ -270,35 +302,38 @@ public class PlayingActivity extends Activity {
     private void pauseOrstartBtnClickHandler(){
     	Log.d(TAG, "pauseOrstartBtnClickHandler");
     	
-		Intent intent = new Intent();
+		//Intent intent = new Intent();
 		if(ControlUtils.bFirstTimePlayFlag == true){
             ControlUtils.bPlayingFlag = true;
             ControlUtils.bPauseFlag = false;
             ControlUtils.bFirstTimePlayFlag = false;
 			setPauseOrPlayBtn();
-			intent.setAction(GlobalConstant.MUSIC_SERVICE);
-			intent.putExtra(GlobalConstant.SONG_PATH_KEY,MainActivity.audioInfoList.get(ControlUtils.curMusicPos).getUrl());
-			intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_FIRST);
-			startService(intent);
+			//intent.setAction(GlobalConstant.MUSIC_SERVICE);
+			//intent.putExtra(GlobalConstant.SONG_PATH_KEY,MainActivity.audioInfoList.get(ControlUtils.curMusicPos).getUrl());
+			//intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_FIRST);
+			//startService(intent);
 			//setLrcView();
+            //PlayMusicService.serviceStart(PlayingActivity.this, GlobalConstant.PLAY_FIRST, audioInfo, ControlUtils.curHisPos);
 		}
 		else if(ControlUtils.bPlayingFlag == false){
             ControlUtils.bPlayingFlag = true;
             ControlUtils.bPauseFlag = false;
 			setPauseOrPlayBtn();
 			//pauseOrstartBtn.setBackgroundResource(R.drawable.play_button);
-			intent.setAction(GlobalConstant.MUSIC_SERVICE);
-			intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_RESUME);
-			startService(intent);
+			//intent.setAction(GlobalConstant.MUSIC_SERVICE);
+			//intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_RESUME);
+			//startService(intent);
+            //PlayMusicService.serviceStart(PlayingActivity.this, GlobalConstant.PLAY_RESUME, audioInfo, ControlUtils.curHisPos);
 			
 		}else{
             ControlUtils.bPlayingFlag = false;
             ControlUtils.bPauseFlag = true;
 			setPauseOrPlayBtn();
 			//pauseOrstartBtn.setBackgroundResource(R.drawable.pause_button);
-			intent.setAction(GlobalConstant.MUSIC_SERVICE);
-			intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_PAUSE);
-			startService(intent);
+			//intent.setAction(GlobalConstant.MUSIC_SERVICE);
+			//intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_PAUSE);
+			//startService(intent);
+            //PlayMusicService.serviceStart(PlayingActivity.this, GlobalConstant.PLAY_PAUSE, audioInfo, ControlUtils.curHisPos);
 		}
     }
     
@@ -309,15 +344,15 @@ public class PlayingActivity extends Activity {
     	}else{
     		pauseOrstartBtn.setBackgroundResource(R.drawable.pause_button);
     	}
-    	display_music_name.setText(MainActivity.audioInfoList.get(ControlUtils.curMusicPos).getTitle());
+    	display_music_name.setText(audioInfoList.get(curPlayPos).getTitle());
     }
     
     private void preBtnClickHandler(){
     	Log.d(TAG, "preBtnClickHandler");
-    	
-    	setCurrentPlayPositionWhenPlayPre();
-		if(ControlUtils.curMusicPos < 0){
-            ControlUtils.curMusicPos = 0;
+
+        curPlayPos = ControlUtils.getInstance().setCurrentPlayPositionWhenPlayPre(curPlayPos, audioInfoList);
+		if(curPlayPos < 0){
+            curPlayPos = 0;
 			Toast.makeText(this, "�Ѿ�û����һ����", Toast.LENGTH_SHORT).show();
 		}else{
 			setPauseOrPlayBtn();
@@ -330,11 +365,13 @@ public class PlayingActivity extends Activity {
             ControlUtils.bPlayingFlag = true;
             ControlUtils.bPauseFlag = false;
             ControlUtils.bFirstTimePlayFlag = false;
-			Intent intent = new Intent();
-			intent.setAction(GlobalConstant.MUSIC_SERVICE);
-			intent.putExtra(GlobalConstant.SONG_PATH_KEY, MainActivity.audioInfoList.get(ControlUtils.curMusicPos).getUrl());
-			intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_PRE);
-			startService(intent);
+			//Intent intent = new Intent();
+			//intent.setAction(GlobalConstant.MUSIC_SERVICE);
+			//intent.putExtra(GlobalConstant.SONG_PATH_KEY, MainActivity.audioInfoList.get(ControlUtils.curMusicPos).getUrl());
+			//intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_PRE);
+			//startService(intent);
+            AudioInfo audioInfo = audioInfoList.get(curPlayPos);
+            PlayMusicService.serviceStart(PlayingActivity.this, GlobalConstant.PLAY_PRE, audioInfo, curPlayPos);
 			//setLrcView();
 			
 		}
@@ -342,10 +379,10 @@ public class PlayingActivity extends Activity {
     
     private void nextBtnClickHandler(){
     	Log.d(TAG, "nextBtnClickHandler");
-    	
-    	setCurrentPlayPositionWhenPlayNext();
-		if( ControlUtils.curMusicPos >= MainActivity.audioInfoList.size() ){
-            ControlUtils.curMusicPos = MainActivity.audioInfoList.size() - 1;
+
+        curPlayPos = ControlUtils.getInstance().setCurrentPlayPositionWhenPlayNext(curPlayPos, audioInfoList);
+		if( curPlayPos >= audioInfoList.size() ){
+            curPlayPos = audioInfoList.size() - 1;
 			Toast.makeText(this, "�������һ����", Toast.LENGTH_SHORT).show();
 		}else{
 			setPauseOrPlayBtn();
@@ -359,15 +396,16 @@ public class PlayingActivity extends Activity {
             ControlUtils.bPlayingFlag = true;
             ControlUtils.bPauseFlag = false;
             ControlUtils.bFirstTimePlayFlag = false;
-			Intent intent = new Intent();
-			intent.setAction(GlobalConstant.MUSIC_SERVICE);
-			intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_NEXT);
-			intent.putExtra(GlobalConstant.SONG_PATH_KEY, MainActivity.audioInfoList.get(ControlUtils.curMusicPos).getUrl());
-			startService(intent);
-			//setLrcView();
+			//Intent intent = new Intent();
+			//intent.setAction(GlobalConstant.MUSIC_SERVICE);
+			//intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_NEXT);
+			//intent.putExtra(GlobalConstant.SONG_PATH_KEY, MainActivity.audioInfoList.get(ControlUtils.curMusicPos).getUrl());
+			//startService(intent);
+            AudioInfo audioInfo = audioInfoList.get(curPlayPos);
+            PlayMusicService.serviceStart(PlayingActivity.this, GlobalConstant.PLAY_NEXT, audioInfo, curPlayPos);
 		}
     }
-
+/*
     private void setCurrentPlayPositionWhenPlayPre(){
     	Log.d(TAG, "setCurrentPlayPositionWhenPlayPre");
 
@@ -422,7 +460,7 @@ public class PlayingActivity extends Activity {
     		break;
     	}
     }
-    
+*/
     private class updateRunnable implements Runnable{
     	@Override
     	public void run(){
@@ -477,7 +515,7 @@ public class PlayingActivity extends Activity {
 			if(seekBar == audioTrackBar){
 				
 				int max = audioTrackBar.getMax();
-				int total = (int)MainActivity.audioInfoList.get(ControlUtils.curMusicPos).getDuration();
+				int total = (int)audioInfoList.get(curPlayPos).getDuration();
 				
 				if(fromUser)
 				{
@@ -486,13 +524,12 @@ public class PlayingActivity extends Activity {
 						Intent intent = new Intent();
 						intent.setAction(GlobalConstant.MUSIC_SERVICE);
 						intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_SEEK);
-						intent.putExtra(GlobalConstant.SONG_PATH_KEY, MainActivity.audioInfoList.get(ControlUtils.curMusicPos).getUrl());
+						intent.putExtra(GlobalConstant.SONG_PATH_KEY, audioInfoList.get(curPlayPos).getUrl());
 						intent.putExtra(GlobalConstant.PLAY_SEEK_KEY, progress*total/max);
 						startService(intent);
 						//PlayMusicService.seekTo(progress*total/max);
 					}
 				}
-				/*���ƽ�����ϻ���*/
 				
 				if(fromUser)
 				{
@@ -506,8 +543,7 @@ public class PlayingActivity extends Activity {
 		}
 
 	};
-    
-	/*�˺�������ת��ʱ���ʽ����Ϊ���ǻ�ȡ����ʱ���Ǻ��룬����������԰Ѻ���ת���ɷ�+��ĸ�ʽ����02:23����*/
+
 	public static String TimeformatChange(int msec)
 	{
 		Log.v(TAG, "TimeformatChange");
@@ -541,5 +577,27 @@ public class PlayingActivity extends Activity {
     protected void onDestroy(){
     	super.onDestroy();
     	unregisterReceiver(PAReceiver);
+        switch (fromWhichActivity){
+            case GlobalConstant.FROM_COLL_ACTIVITY:{
+                ControlUtils.curCollPos = curPlayPos;
+            }
+            break;
+            case GlobalConstant.FROM_MAIN_ACTIVITY:{
+                ControlUtils.curMusicPos = curPlayPos;
+            }
+            break;
+            case GlobalConstant.FROM_HIST_ACTIVITY:{
+                ControlUtils.curHisPos = curPlayPos;
+            }
+            break;
+            default:
+                break;
+        }
     }
+
+    //public static void actionStart(Context context, AudioInfo audio){
+        //Intent intent = new Intent(context, PlayingActivity.class);
+        //intent.putExtra(GlobalConstant.SONG_NAME_KEY, audio.getTitle());
+        //intent.putExtra(GlobalConstant.SONG_PATH_KEY, audio.getUrl());
+    //}
 }

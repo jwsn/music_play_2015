@@ -12,6 +12,7 @@ import linhai.example.com.adapter.MyLinearLayout;
 import linhai.example.com.adapter.MyListView;
 import linhai.example.com.audio.AudioInfo;
 import linhai.example.com.constant.GlobalConstant;
+import linhai.example.com.service.PlayMusicService;
 import linhai.example.com.utils.AudioUtils;
 import linhai.example.com.utils.ControlUtils;
 import linhai.example.com.utils.ImageUtils;
@@ -103,13 +104,7 @@ public class MainActivity extends Activity implements MyLinearLayout.OnScrollLis
                 ControlUtils.bPlayingFlag = true;
                 ControlUtils.bPauseFlag = false;
         		setPauseOrPlayBtn();
-        		Intent intent = new Intent();
-        		intent.setAction(GlobalConstant.MUSIC_SERVICE);
-        		intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_FIRST);
-        		//Intent intent = new Intent(MainActivity.this, PlayMusicService.class);
-        		intent.putExtra(GlobalConstant.SONG_PATH_KEY, audioInfo.getUrl());
-        		Log.d(TAG, "songpath = " + audioInfo.getUrl());
-        		startService(intent);
+                PlayMusicService.serviceStart(MainActivity.this, GlobalConstant.PLAY_FIRST, audioInfo, ControlUtils.curCollPos);
         	}
         });
 
@@ -225,11 +220,13 @@ public class MainActivity extends Activity implements MyLinearLayout.OnScrollLis
             ControlUtils.bPlayingFlag = true;
             ControlUtils.bPauseFlag = false;
             ControlUtils.bFirstTimePlayFlag = false;
-			Intent intent = new Intent();
-			intent.setAction(GlobalConstant.MUSIC_SERVICE);
-			intent.putExtra(GlobalConstant.SONG_PATH_KEY, audioInfoList.get(ControlUtils.curMusicPos).getUrl());
-			intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_PRE);
-			startService(intent);
+			//Intent intent = new Intent();
+			//intent.setAction(GlobalConstant.MUSIC_SERVICE);
+			//intent.putExtra(GlobalConstant.SONG_PATH_KEY, audioInfoList.get(ControlUtils.curMusicPos).getUrl());
+			//intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_PRE);
+			//startService(intent);
+            AudioInfo audioInfo = audioInfoList.get(ControlUtils.curCollPos);
+            PlayMusicService.serviceStart(MainActivity.this, GlobalConstant.PLAY_PRE, audioInfo, ControlUtils.curCollPos);
 		}
     }
     
@@ -250,43 +247,51 @@ public class MainActivity extends Activity implements MyLinearLayout.OnScrollLis
             ControlUtils.bPlayingFlag = true;
             ControlUtils.bPauseFlag = false;
             ControlUtils.bFirstTimePlayFlag = false;
-			Intent intent = new Intent();
-			intent.setAction(GlobalConstant.MUSIC_SERVICE);
-			intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_NEXT);
-			intent.putExtra(GlobalConstant.SONG_PATH_KEY, audioInfoList.get(ControlUtils.curMusicPos).getUrl());
-			startService(intent);
+			//Intent intent = new Intent();
+			//intent.setAction(GlobalConstant.MUSIC_SERVICE);
+			//intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_NEXT);
+			//intent.putExtra(GlobalConstant.SONG_PATH_KEY, audioInfoList.get(ControlUtils.curMusicPos).getUrl());
+			//startService(intent);
+            AudioInfo audioInfo = audioInfoList.get(ControlUtils.curCollPos);
+            PlayMusicService.serviceStart(MainActivity.this, GlobalConstant.PLAY_NEXT, audioInfo, ControlUtils.curCollPos);
 		}
     }
     
     private void pauseOrstartBtnClickHandler(){
     	Log.d(TAG, "pauseOrstartBtnClickHandler");
     	
-		Intent intent = new Intent();
+		//Intent intent = new Intent();
 		if(ControlUtils.bFirstTimePlayFlag == true){
             ControlUtils.bPlayingFlag = true;
             ControlUtils.bPauseFlag = false;
             ControlUtils.bFirstTimePlayFlag = false;
 			setPauseOrPlayBtn();
-			intent.setAction(GlobalConstant.MUSIC_SERVICE);
-			intent.putExtra(GlobalConstant.SONG_PATH_KEY,audioInfoList.get(ControlUtils.curMusicPos).getUrl());
-			intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_FIRST);
-			startService(intent);
+			//intent.setAction(GlobalConstant.MUSIC_SERVICE);
+			//intent.putExtra(GlobalConstant.SONG_PATH_KEY,audioInfoList.get(ControlUtils.curMusicPos).getUrl());
+			//intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_FIRST);
+			//startService(intent);
+            AudioInfo audioInfo = audioInfoList.get(ControlUtils.curCollPos);
+            PlayMusicService.serviceStart(MainActivity.this, GlobalConstant.PLAY_FIRST, audioInfo, ControlUtils.curCollPos);
 		}
 		else if(ControlUtils.bPlayingFlag == false){
             ControlUtils.bPlayingFlag = true;
             ControlUtils.bPauseFlag = false;
 			setPauseOrPlayBtn();
-			intent.setAction(GlobalConstant.MUSIC_SERVICE);
-			intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_RESUME);
-			startService(intent);
+			//intent.setAction(GlobalConstant.MUSIC_SERVICE);
+			//intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_RESUME);
+			//startService(intent);
+            AudioInfo audioInfo = audioInfoList.get(ControlUtils.curCollPos);
+            PlayMusicService.serviceStart(MainActivity.this, GlobalConstant.PLAY_RESUME, audioInfo, ControlUtils.curCollPos);
 			
 		}else{
             ControlUtils.bPlayingFlag = false;
             ControlUtils.bPauseFlag = true;
 			setPauseOrPlayBtn();
-			intent.setAction(GlobalConstant.MUSIC_SERVICE);
-			intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_PAUSE);
-			startService(intent);
+			//intent.setAction(GlobalConstant.MUSIC_SERVICE);
+			//intent.putExtra(GlobalConstant.PLAY_CONTROL, GlobalConstant.PLAY_PAUSE);
+			//startService(intent);
+            AudioInfo audioInfo = audioInfoList.get(ControlUtils.curCollPos);
+            PlayMusicService.serviceStart(MainActivity.this, GlobalConstant.PLAY_PAUSE, audioInfo, ControlUtils.curCollPos);
 		}
     }
     
@@ -327,9 +332,10 @@ public class MainActivity extends Activity implements MyLinearLayout.OnScrollLis
     	Log.d(TAG, "playingImageBtnClickHandler");
     	
 		Intent intent = new Intent(MainActivity.this, PlayingActivity.class);
-		//intent.putExtra(GlobalConstant.BFIRST_TIME_FLAG_KEY, bFirstTimePlayFlag);
-		//intent.putExtra(GlobalConstant.BPAUSE_FLAG_KEY, bPauseFlag);
-		//intent.putExtra(GlobalConstant.BPLAYINGFLAG_KEY, bPlayingFlag);
+		intent.putExtra(GlobalConstant.SONG_NAME_KEY, audioInfoList.get(ControlUtils.curMusicPos).getTitle());
+		intent.putExtra(GlobalConstant.SONG_PATH_KEY, audioInfoList.get(ControlUtils.curMusicPos).getUrl());
+        intent.putExtra(GlobalConstant.ACTIVITY_KEY, GlobalConstant.FROM_MAIN_ACTIVITY);
+		//intent.putExtra(GlobalConstant.BPLAYINGFLAG_KEY, bPla);
 		//intent.putExtra(GlobalConstant.CURRENT_POS_KEY, curMusicPos);
 		//startActivity(intent);
 		startActivityForResult(intent, 0);

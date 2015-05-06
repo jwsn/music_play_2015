@@ -3,12 +3,26 @@ package linhai.example.com.constant;
 import com.example.musicplayer.R;
 
 public class GlobalConstant{
-	
+
+    /*** start service  ***/
 	public static final String MUSIC_SERVICE = "com.example.service.PlayMusicService";
 	public static final String PLAY_CONTROL = "play_control_msg";
 	public static final String SONG_PATH_KEY = "song_path_key";
 	public static final String PLAY_SEEK_KEY = "play_seek_key";
-	
+    public static final String SONG_POS_KEY = "song_cur_pos";
+    public static final String SONG_NAME_KEY = "song_name_key";
+
+    /*** start playing activity key***/
+    public static final String ACTIVITY_KEY = "from_which_activity_key";
+    //public static final String CURPOS_KEY = "cur_pos_key";
+    public static final int FROM_MAIN_ACTIVITY = 0;
+    public static final int FROM_COLL_ACTIVITY = 1;
+    public static final int FROM_HIST_ACTIVITY = 2;
+
+    //public static final String COLL_ACTIVITY_KEY = "coll_activity_key";
+    //public static final String HIST_ACTIVITY_KEY = "hist_activity_key";
+
+    /*** play music control ***/
 	public static final int PLAY_RESUME = 0;
 	public static final int PLAY_FIRST = 1;
 	public static final int PLAY_PAUSE = 2;

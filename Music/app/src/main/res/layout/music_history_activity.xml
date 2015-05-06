@@ -1,8 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    android:background="@drawable/bg_animation">
+    android:background="@drawable/bg_animation"
+    >
 
-</LinearLayout>
+    <RelativeLayout
+        android:id="@+id/my_history_button_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/song_item_bg">
+        <TextView
+            android:id="@+id/history_title"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:text="最近播放"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="35dip" />
+
+    </RelativeLayout>
+
+    <linhai.example.com.adapter.MyListView
+        android:id="@+id/music_history_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@layout/play_control_bar"
+        android:layout_below="@id/my_history_button_layout"
+        android:layout_weight="1"
+        android:divider="@drawable/listview_line"
+        android:dividerHeight="10dp"
+        android:paddingLeft="5dp"
+        android:paddingTop="5dp"
+        android:paddingRight="5dp"
+        android:drawSelectorOnTop="false"
+        android:listSelector="@android:color/transparent"
+        >
+    </linhai.example.com.adapter.MyListView>
+
+    <!--
+    <ListView
+        android:id="@+id/music_collect_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@layout/play_control_bar"
+        android:layout_below="@id/my_collect_button_layout"
+        android:layout_weight="1"
+        android:divider="@drawable/listview_line"
+        android:dividerHeight="20px"
+        android:paddingLeft="15px"
+        android:drawSelectorOnTop="false">
+    </ListView>
+    -->
+
+    <include layout="@layout/play_control_bar"/>
+
+</RelativeLayout>
+

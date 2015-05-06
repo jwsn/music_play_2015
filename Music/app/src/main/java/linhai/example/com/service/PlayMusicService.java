@@ -2,14 +2,21 @@ package linhai.example.com.service;
 
 import java.io.IOException;
 import java.util.List;
+
+import linhai.example.com.audio.AudioInfo;
 import linhai.example.com.constant.GlobalConstant;
+import linhai.example.com.databaseHelper.MusicDatabaseHelper;
 import linhai.example.com.lrc.LrcContent;
 import linhai.example.com.lrc.LrcHandler;
 import linhai.example.com.music.MainActivity;
 import linhai.example.com.utils.ControlUtils;
 
 import android.app.Service;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.IBinder;
@@ -19,8 +26,11 @@ public class PlayMusicService extends Service{
 	private static final String TAG = "PlayMusicService";
 	
 	private static MediaPlayer mediaPlayer;
+
 	private String songPath;
-	
+    private String songName;
+    private int songPos;
+
 	/*** control flag ***/
 	private boolean isPause = false;
 	
@@ -32,7 +42,12 @@ public class PlayMusicService extends Service{
 	private static int mediaPlayer_currentTime;
 	private static int mediaPlayer_duration;
 	private static int currentPlayPos = 0;
-	
+
+    /*** dataBaseHelper ***/
+    private MusicDatabaseHelper dbHelper = new MusicDatabaseHelper(this, "history.db", null, 1);
+
+
+
 	/*** a runnable ***/
 	//private serviceRunnable updatRun;
 	
@@ -50,10 +65,7 @@ public class PlayMusicService extends Service{
 		//start a thread
         serviceRunnable sr = new serviceRunnable();
         (new Thread(sr)).start();
-		
-		/**
-		 * �������ֲ������ʱ�ļ�����
-		 */
+
 		mediaPlayer.setOnCompletionListener(new OnCompletionListener() {
 			
 			@Override
@@ -77,7 +89,7 @@ public class PlayMusicService extends Service{
 		}
 			
 		int playControlFlag = intent.getIntExtra(GlobalConstant.PLAY_CONTROL, 1);
-		songPath = intent.getStringExtra(GlobalConstant.SONG_PATH_KEY);
+
 		currentPlayPos = 0;
 		switch(playControlFlag){
 			case GlobalConstant.PLAY_RESUME:{
@@ -85,10 +97,16 @@ public class PlayMusicService extends Service{
 			}
 			break;
 			case GlobalConstant.PLAY_FIRST:{
+                songPath = intent.getStringExtra(GlobalConstant.SONG_PATH_KEY);
+                songName = intent.getStringExtra(GlobalConstant.SONG_NAME_KEY);
+                songPos  = intent.getIntExtra(GlobalConstant.SONG_POS_KEY, 0);
 				playFirst();
 			}
 			break;
 			case GlobalConstant.PLAY_NEXT:{
+                songPath = intent.getStringExtra(GlobalConstant.SONG_PATH_KEY);
+                songName = intent.getStringExtra(GlobalConstant.SONG_NAME_KEY);
+                songPos  = intent.getIntExtra(GlobalConstant.SONG_POS_KEY, 0);
 				playNext();		
 			}
 			break;
@@ -97,6 +115,9 @@ public class PlayMusicService extends Service{
 			}
 			break;
 			case GlobalConstant.PLAY_PRE:{
+                songPath = intent.getStringExtra(GlobalConstant.SONG_PATH_KEY);
+                songName = intent.getStringExtra(GlobalConstant.SONG_NAME_KEY);
+                songPos  = intent.getIntExtra(GlobalConstant.SONG_POS_KEY, 0);
 				playPre();
 			}
 			case GlobalConstant.PLAY_SEEK:{
@@ -170,6 +191,26 @@ public class PlayMusicService extends Service{
 			//update the lrc
 			initLrc();
 			sendUpdateLrcListBroadcast();
+
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            Cursor cursor = db.query("history", null, null, null, null, null, null);
+            boolean isInserted = false;
+            if(cursor.moveToFirst()) {
+                do {
+                    String name = cursor.getString(cursor.getColumnIndex("name"));
+                    if (name.equals(songName)) {
+                        isInserted = true;
+                    }
+                } while (cursor.moveToNext());
+            }
+            if(isInserted == false) {
+                ContentValues values = new ContentValues();
+                values.put("name", songName);
+                values.put("path", songPath);
+                values.put("pos", songPos);
+                db.insert("history", null, values);
+            }
+            cursor.close();
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -264,7 +305,7 @@ public class PlayMusicService extends Service{
     			if(ControlUtils.bPlayingFlag == true){
     				if(mediaPlayer != null){
     					if(mediaPlayer.isPlaying()){
-                            Log.d(TAG, "mediaPlayer.isplaying()");
+                            Log.i(TAG, "mediaPlayer.isplaying()");
     						currentPlayPos = mediaPlayer.getCurrentPosition();
     					}
     				}
@@ -290,4 +331,16 @@ public class PlayMusicService extends Service{
 		
 		super.onDestroy();
 	}
+
+    public static void serviceStart(Context context, int playControlKey, AudioInfo audioInfo, int pos){
+        Log.d(TAG, context.getClass().getName() + "serviceStart");
+
+        Intent intent = new Intent();
+        intent.setAction(GlobalConstant.MUSIC_SERVICE);
+        intent.putExtra(GlobalConstant.PLAY_CONTROL, playControlKey);
+        intent.putExtra(GlobalConstant.SONG_PATH_KEY, audioInfo.getUrl());
+        intent.putExtra(GlobalConstant.SONG_POS_KEY, pos);
+        intent.putExtra(GlobalConstant.SONG_NAME_KEY, audioInfo.getTitle());
+        context.startService(intent);
+    }
 }
