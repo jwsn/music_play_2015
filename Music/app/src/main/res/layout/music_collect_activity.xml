@@ -31,9 +31,13 @@
         android:layout_below="@id/my_collect_button_layout"
         android:layout_weight="1"
         android:divider="@drawable/listview_line"
-        android:dividerHeight="20px"
-        android:paddingLeft="15px"
-        android:drawSelectorOnTop="false">
+        android:dividerHeight="10dp"
+        android:paddingLeft="5dp"
+        android:paddingTop="5dp"
+        android:paddingRight="5dp"
+        android:drawSelectorOnTop="false"
+        android:listSelector="@android:color/transparent"
+        >
     </linhai.example.com.adapter.MyListView>
 
     <!--
