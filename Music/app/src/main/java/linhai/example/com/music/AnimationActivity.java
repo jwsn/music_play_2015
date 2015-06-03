@@ -29,6 +29,7 @@ import android.view.View;
 import linhai.example.com.adapter.MyAdapter;
 import linhai.example.com.adapter.MyListView;
 import linhai.example.com.audio.AudioInfo;
+import linhai.example.com.pagerview.MyTabActivity;
 import linhai.example.com.utils.AudioUtils;
 
 public class AnimationActivity extends Activity {
@@ -105,7 +106,8 @@ public class AnimationActivity extends Activity {
 			//	b.putParcelableList("list",musicList);
 				//intent.putExtra("list",musicList);
 				//intent.putExtras(b);
-				intent.setClass(AnimationActivity.this,MusicManagerActivity.class);
+				//intent.setClass(AnimationActivity.this,MusicManagerActivity.class);
+                intent.setClass(AnimationActivity.this, MyTabActivity.class);
 				startActivity(intent);
 				//laudio.searchLocalAudioLRC();
 				AnimationActivity.this.finish();		

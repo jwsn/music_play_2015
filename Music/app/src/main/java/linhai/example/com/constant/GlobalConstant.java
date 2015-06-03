@@ -35,6 +35,7 @@ public class GlobalConstant{
 	
 	/*** PlayingActivity Receiver ***/
 	public static final String UPDATE_LRC_LIST = "com.example.UPDATE_LRC_LIST";
+    public static final String UPLATE_LRC_DISP = "com.example.UPDATE_LRC_DISP";
 	/*** play mode **
 	public enum PlayMode{
 		NORMAL_PLAY_MODE,
@@ -79,5 +80,11 @@ public class GlobalConstant{
             R.drawable.playmode_repeate_single,
             R.drawable.playmode_repeate_random
     };
-	
+
+    /*** my tab activity ***/
+	public final static int MY_TAB = 0;
+    public final static int CO_TAB = 1;
+    public final static int RA_TAB = 2;
+    public final static int SO_TAB = 3;
+
 }

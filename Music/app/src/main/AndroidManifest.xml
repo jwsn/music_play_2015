@@ -8,7 +8,8 @@
         android:minSdkVersion="17"
         android:targetSdkVersion="17" />
 
-    <application>
+    <application
+        android:name="linhai.example.com.constant.MyApplication">
 
         <!-- Music Manager Activity -->
         <activity
@@ -27,6 +28,11 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <!-- MyTabActivity -->
+        <activity
+            android:name="linhai.example.com.pagerview.MyTabActivity">
         </activity>
 
         <!-- Playing Activity -->
@@ -75,5 +81,6 @@
     <!-- 获取读取电话通知的权限 -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
-    
+    <uses-permission android:name="android.permission.GET_TASKS"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 </manifest>

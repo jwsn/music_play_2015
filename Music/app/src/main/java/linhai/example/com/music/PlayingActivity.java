@@ -5,6 +5,7 @@ import java.util.Random;
 import linhai.example.com.adapter.MusicListAdapter;
 import linhai.example.com.audio.AudioInfo;
 import linhai.example.com.constant.GlobalConstant;
+import linhai.example.com.floatview.FloatViewManager;
 import linhai.example.com.lrc.LrcView;
 import linhai.example.com.service.PlayMusicService;
 import linhai.example.com.databaseHelper.MusicDatabaseHelper;
@@ -128,9 +129,10 @@ public class PlayingActivity extends Activity {
     				case GlobalConstant.UPDATE_LRC_VIEW:
     					if(ControlUtils.bPlayingFlag)
     					{
-    						Log.v(TAG, "handleMessage->UPDATE_LRC_VIEW");
+    						Log.d(TAG, "handleMessage->UPDATE_LRC_VIEW");
     						//update LRC VIEW
     						mLrcView.seekTo(PlayMusicService.getCurrentPlayPos(), true,false);
+                            FloatViewManager.getInstance().setFloatWindowLrcView(PlayMusicService.getCurrentPlayPos(), true,false);
     						//update trackbar time
     						int position = PlayMusicService.getCurrentPlayPos();
     						//int total = PlayMusicService.getDuration();
@@ -225,7 +227,7 @@ public class PlayingActivity extends Activity {
     private void setLrcView(){
     	Log.d(TAG, "setLrcView");
     	mLrcView.setLrcContents(PlayMusicService.getLrcList());
-    	
+        FloatViewManager.getInstance().setLrcVeiw(PlayMusicService.getLrcList());
     }
     
     private void setTrackBarTime(){

@@ -5,79 +5,130 @@ package linhai.example.com.music;
 
 import linhai.example.com.adapter.GridViewAdapter;
 import linhai.example.com.constant.GlobalConstant;
+import linhai.example.com.floatview.FloatView;
+import linhai.example.com.floatview.FloatViewManager;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 import android.widget.Toast;
-
+import android.os.Handler;
 import com.example.musicplayer.R;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MusicManagerActivity extends Activity{
     private static final String TAG = "MusicManagerActivity";
 	private GridView gridview;
 	private long exitTime = 0;
+    private Handler handler = new Handler();
+    private Timer timer;
+    private RefreshFloatViewTask mrefreshTask;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_music_manager);
-		
-		gridview = (GridView)findViewById(R.id.gridview);
-		gridview.setAdapter(new GridViewAdapter(this));
-		gridview.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int itemid,long arg3){
-				//arg1�ǵ�ǰitem��view��ͨ�������Ի�ø����еĸ�������� 
-				//arg2�ǵ�ǰitem��ID�����id���������������е�д�������Լ����塣 
-				//arg3�ǵ�ǰ��item��listView�е����λ�ã� 
-				Intent intent = new Intent();
-				switch(itemid){
-				case GlobalConstant.LOCAL_MUSIC:{
-                    Log.d(TAG, "press local music key");
-					intent.setClass(MusicManagerActivity.this, MainActivity.class);
-					startActivity(intent);
-				}
-				break;
-				case GlobalConstant.HISTORY_MUSIC:{
-				    Log.d(TAG, "press history key");
-                    intent.setClass(MusicManagerActivity.this, MusicHistoryActivity.class);
-                    startActivity(intent);
-                }
-				break;
-				case GlobalConstant.COLLECT_MUSIC:{
-                    Log.d(TAG, "press collect key");
-                    intent.setClass(MusicManagerActivity.this, MusicCollectActivity.class);
-                    startActivity(intent);
-				}
-				break;
-				case GlobalConstant.SEARCH_MUSIC:{
-                    Log.d(TAG, "press search key");
-                    intent.setClass(MusicManagerActivity.this, MusicSearchActivity.class);
-                    startActivity(intent);
-				}
-				break;
-				case GlobalConstant.SETTING_MUSIC:{
-                    Log.d(TAG, "press setting key");
-                    intent.setClass(MusicManagerActivity.this, MusicSettingActivity.class);
-                    startActivity(intent);
-				}
-				break;
-				default:
-					break;
-				}
-			}
-		});
-		
+
+        initGridView();
+        showFloatWindow();
+        startTimerRefreshFloatWindow();
+
 	}
+
+    private void initGridView(){
+        gridview = (GridView)findViewById(R.id.gridview);
+        gridview.setAdapter(new GridViewAdapter(this));
+        gridview.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View arg1, int itemid,long arg3){
+                Intent intent = new Intent();
+                switch(itemid){
+                    case GlobalConstant.LOCAL_MUSIC:{
+                        Log.d(TAG, "press local music key");
+                        intent.setClass(MusicManagerActivity.this, MainActivity.class);
+                        startActivity(intent);
+                    }
+                    break;
+                    case GlobalConstant.HISTORY_MUSIC:{
+                        Log.d(TAG, "press history key");
+                        intent.setClass(MusicManagerActivity.this, MusicHistoryActivity.class);
+                        startActivity(intent);
+                    }
+                    break;
+                    case GlobalConstant.COLLECT_MUSIC:{
+                        Log.d(TAG, "press collect key");
+                        intent.setClass(MusicManagerActivity.this, MusicCollectActivity.class);
+                        startActivity(intent);
+                    }
+                    break;
+                    case GlobalConstant.SEARCH_MUSIC:{
+                        Log.d(TAG, "press search key");
+                        intent.setClass(MusicManagerActivity.this, MusicSearchActivity.class);
+                        startActivity(intent);
+                    }
+                    break;
+                    case GlobalConstant.SETTING_MUSIC:{
+                        Log.d(TAG, "press setting key");
+                        intent.setClass(MusicManagerActivity.this, MusicSettingActivity.class);
+                        startActivity(intent);
+                    }
+                    break;
+                    default:
+                        break;
+                }
+            }
+        });
+    }
+
+    private void showFloatWindow(){
+        FloatViewManager.getInstance().showFloatView();
+    }
+
+    private void startTimerRefreshFloatWindow()
+    {
+        if(timer == null){
+            timer = new Timer();
+            if(mrefreshTask == null){
+                mrefreshTask = new RefreshFloatViewTask();
+            }
+            timer.scheduleAtFixedRate(mrefreshTask, 0, 500);
+        }
+    }
+
+    private class RefreshFloatViewTask extends TimerTask {
+
+        @Override
+        public void run(){
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    FloatViewManager.getInstance().showFloatView();
+                }
+            });
+        }
+    }
+
+    private void stopTimerRefreshFloatWindow(){
+        if(timer != null){
+            timer.cancel();
+            timer = null;
+        }
+        if(mrefreshTask != null){
+            mrefreshTask.cancel();
+            mrefreshTask = null;
+        }
+        removeFloatWindow();
+    }
 
     @Override
     public void onBackPressed(){
@@ -113,7 +164,11 @@ public class MusicManagerActivity extends Activity{
         Intent stopIntent = new Intent();
         stopIntent.setAction(GlobalConstant.MUSIC_SERVICE);
         stopService(stopIntent);
+        stopTimerRefreshFloatWindow();
     	super.onDestroy();
     }
-	
+
+    private void removeFloatWindow(){
+        FloatViewManager.getInstance().removeFloatView();
+    }
 }

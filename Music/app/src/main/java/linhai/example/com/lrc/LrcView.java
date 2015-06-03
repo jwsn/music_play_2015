@@ -3,6 +3,7 @@ package linhai.example.com.lrc;
 import java.util.ArrayList;
 import java.util.List;
 
+import linhai.example.com.floatview.FloatViewManager;
 import linhai.example.com.music.MainActivity;
 import linhai.example.com.utils.ControlUtils;
 
@@ -104,7 +105,7 @@ public class LrcView extends View implements ILrcView{
 	private int mTotleDrawRow;
 	/**控制歌词水平滚动的属性动画***/
 	
-	public boolean isFloatWindow = false;
+	//public boolean isFloatWindow = false;
 	WindowManager wm;
 	WindowManager.LayoutParams wmParams;
 	private ValueAnimator mAnimator;
@@ -165,47 +166,55 @@ public class LrcView extends View implements ILrcView{
 			String currentSongName = MainActivity.audioInfoList.get(ControlUtils.curMusicPos).getTitle();//getAudioList().getCurPos().getName();
 			float textWidth = mPaintForHighLightLrc.measureText(currentSongName);
 			float textX = (getWidth()-textWidth)/2;
+            //画出歌名
 			canvas.drawText(currentSongName, textX, getHeight()/2-DEFAULT_SIZE_FOR_HIGHT_LIGHT_LRC, mPaintForHighLightLrc);
 			
-		//	mPaintForOtherLrc.setTextSize(getTextSize());
+		    //mPaintForOtherLrc.setTextSize(getTextSize());
 			textWidth = mPaintForHighLightLrc.measureText(DEFAULT_TEXT);
 			textX = (getWidth()-textWidth)/2;
+            //没有歌词
 			canvas.drawText(DEFAULT_TEXT, textX, getHeight()/2, mPaintForHighLightLrc);
-
+            Log.e(TAG, "HAIBING");
 			return;
 		}
-		
-	//	int h =  getHeight();
-		if(isFloatWindow == false)
-		mTotleDrawRow = (int) (getHeight()/(mCurSizeForOtherLrc+mCurPadding)+3);
-		else
-		{
+
+        if(FloatViewManager.getInstance().isFloatViewShowing() == false){//浮窗不显示
+		//if(isFloatWindow == false) {
+            //view的高度除以(text size + padding)
+            mTotleDrawRow = (int) (getHeight() / (mCurSizeForOtherLrc + mCurPadding) + 3);
+        }else{
+            //浮窗时。只画三行
 			mTotleDrawRow = 3;
 		}
 		if(mTotleDrawRow == 0){
 			//初始化将要绘制的歌词行数
-			mTotleDrawRow = (int) (getHeight()/(mCurSizeForOtherLrc+mCurPadding))+4;
+			mTotleDrawRow = (int) (getHeight() / (mCurSizeForOtherLrc + mCurPadding)) + 4;
 		}
 		//因为不需要将所有歌词画出来
-		int minRaw = mCurRow - (mTotleDrawRow-1)/2;
-		int maxRaw = mCurRow + (mTotleDrawRow-1)/2;
-		minRaw = Math.max(minRaw, 0);  //处理上边界
-		maxRaw = Math.min(maxRaw, mLrcContents.size()-1);  //处理下边界
+		int minRaw = mCurRow - (mTotleDrawRow-1)/2;//中间那行减去一半，等于view上最上面那一行
+		int maxRaw = mCurRow + (mTotleDrawRow-1)/2;//中间那行加上一半，等于view上最下面那一行
+		minRaw = Math.max(minRaw, 0);  //处理view歌词显示上边界
+		maxRaw = Math.min(maxRaw, mLrcContents.size()-1);  //处理view歌词显示下边界
 		//实现渐变的最大歌词行数
 		int count = Math.max(maxRaw-mCurRow, mCurRow-minRaw);
 		//两行歌词间字体颜色变化的透明度
 		int alpha = (0xFF-0x11)/count;
 		//画出来的第一行歌词的y坐标
-		float rowY=0 ;
+		float rowY = 0 ;
 		//if(isFloatWindow == false)
+        if(FloatViewManager.getInstance().isFloatViewShowing() == false)//浮窗不显示
 			rowY= getHeight()/2 + minRaw*(mCurSizeForOtherLrc + mCurPadding);
-		//else
-			//rowY = mCurSizeForOtherLrc;
+		else
+			rowY = mCurSizeForOtherLrc;
+
+        boolean flag = false;
+
+        Log.e(TAG, "ROWY = " + rowY);
 		for (int i = minRaw; i <= maxRaw; i++) {
-			
+            Log.e(TAG, "ROWY = " + rowY);
 			if(i == mCurRow){//画高亮歌词
 				//因为有缩放效果，所有需要动态设置歌词的字体大小
-
+                Log.e(TAG, "MCURROW");
 				float textSize = mCurSizeForOtherLrc + (mCurSizeForHightLightLrc - mCurSizeForOtherLrc)*mCurFraction;
 				mPaintForHighLightLrc.setTextSize(textSize);
 
@@ -226,9 +235,12 @@ public class LrcView extends View implements ILrcView{
 					//因为有缩放效果，所有需要动态设置歌词的字体大小
 					float textSize = mCurSizeForHightLightLrc - (mCurSizeForHightLightLrc - mCurSizeForOtherLrc)*mCurFraction;
 					//if(isFloatWindow == false)
+
+                    if(FloatViewManager.getInstance().isFloatViewShowing() == false)//浮窗不显示
 						mPaintForOtherLrc.setTextSize(textSize);
-					//else
-					//	mPaintForOtherLrc.setTextSize( mCurSizeForOtherLrc + (mCurSizeForHightLightLrc - mCurSizeForOtherLrc)*mCurFraction);
+					else
+						mPaintForOtherLrc.setTextSize( mCurSizeForOtherLrc );//+ (mCurSizeForHightLightLrc - mCurSizeForOtherLrc)*mCurFraction);
+
 				}else{//画其他的歌词
 					mPaintForOtherLrc.setTextSize(mCurSizeForOtherLrc);
 				}
@@ -238,8 +250,8 @@ public class LrcView extends View implements ILrcView{
 				//如果计算出的textX为负数，将textX置为0(实现：如果歌词宽大于view宽，则居左显示，否则居中显示)
 				textX = Math.max(textX, 0);
 				//实现颜色渐变  从0xFFFFFFFF 逐渐变为 0x11FFFFFF(颜色还是白色，只是透明度变化)
-				int curAlpha = 255-(Math.abs(i-mCurRow)-1)*alpha; //求出当前歌词颜色的透明度
-				mPaintForOtherLrc.setColor(0x1000000*curAlpha+mCurColorForOtherLrc);
+				int curAlpha = 255 - (Math.abs(i - mCurRow) -1 )*alpha; //求出当前歌词颜色的透明度
+				mPaintForOtherLrc.setColor(0x1000000 * curAlpha + mCurColorForOtherLrc);
 				canvas.drawText(text, textX, rowY, mPaintForOtherLrc);
 				Log.v("MYLRCView:","onDraw i != mCurrow");
 			}
@@ -286,11 +298,11 @@ public class LrcView extends View implements ILrcView{
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 
-		if(isFloatWindow==false&&(mLrcContents == null || mLrcContents.size() == 0)){
+		if(FloatViewManager.getInstance().isFloatViewShowing() == false && (mLrcContents == null || mLrcContents.size() == 0)){
 			return false;
 		}
 		
-		if(isFloatWindow == true)
+		if(FloatViewManager.getInstance().isFloatViewShowing())
 		{
 			/*
 			//if(floatViewTouchListener!=null)
@@ -403,6 +415,7 @@ public class LrcView extends View implements ILrcView{
 	 */
 	@Override
 	public void setLrcContents(List<LrcContent> lrcRows) {
+        Log.e(TAG, "HAIBINGHAIBINGHAIBING");
 		reset();
 		this.mLrcContents = lrcRows;
 		invalidate();
@@ -416,12 +429,14 @@ public class LrcView extends View implements ILrcView{
 	@Override
 	public void seekTo(int progress,boolean fromSeekBar,boolean fromSeekBarByUser) {
 		if(mLrcContents == null || mLrcContents.size() == 0){
+            //Log.e(TAG, "mLrcContents == null || mLrcContents.size() == 0");
 			return;
 		} 
 		//如果是由seekbar的进度改变触发 并且这时候处于拖动状态，则返回
 		if(fromSeekBar && canDrag){
 			return;
 		}
+
 		for (int i = mLrcContents.size()-1; i >= 0; i--) {
 
 			if(progress >= mLrcContents.get(i).getTime()){
@@ -448,7 +463,7 @@ public class LrcView extends View implements ILrcView{
 						startScrollLrc(getWidth()-textWidth, (long) (mLrcContents.get(mCurRow).getTotalTime()*0.6));
 					}
 					
-					Log.v(TAG, "seekTo mCurrow ="+mCurRow);
+					Log.e(TAG, "seekTo mCurrow ="+mCurRow);
 					invalidate();
 					
 				}

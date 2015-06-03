@@ -21,6 +21,7 @@ public class ControlUtils {
     public static boolean bPauseFlag = true;
     public static boolean bFirstTimePlayFlag = true;
     public static int playMode = GlobalConstant.NORMAL_PLAY_MODE;
+    public static boolean isFloatWindowShowing = false;
 
     public static int curMusicPos = 0;
     public static int curCollPos = 0;
