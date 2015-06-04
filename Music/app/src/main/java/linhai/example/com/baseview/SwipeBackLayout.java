@@ -42,6 +42,7 @@ public class SwipeBackLayout extends FrameLayout {
 
     public SwipeBackLayout(Context context, AttributeSet attrs){
         super(context, attrs, 0);
+        Log.d(TAG, "constructor");
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
         mScroller = new Scroller(context);
 
@@ -50,7 +51,7 @@ public class SwipeBackLayout extends FrameLayout {
 
     public SwipeBackLayout(Context context, AttributeSet attrs, int defStyle){
         super(context, attrs, defStyle);
-
+        Log.d(TAG, "constructor");
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
         mScroller = new Scroller(context);
 
@@ -59,6 +60,7 @@ public class SwipeBackLayout extends FrameLayout {
     }
 
     public void attachToActivity(Activity activity){
+        Log.d(TAG, "attachToActivity");
         mActivity = activity;
         TypedArray a = activity.getTheme().obtainStyledAttributes(new int[] {android.R.attr.windowBackground});
 
@@ -75,11 +77,13 @@ public class SwipeBackLayout extends FrameLayout {
     }
 
     private void setContentView(View decorChild){
+        Log.d(TAG, "setContentView");
         mContentView = (View) decorChild.getParent();
     }
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev){
+        Log.d(TAG, "onInterceptTouchEvent");
         //处理viewPager冲突问题
         ViewPager mViewPager = getTouchViewPager(mViewPagers, ev);
         Log.i(TAG, "mViewPagers = " + mViewPager);
@@ -96,7 +100,7 @@ public class SwipeBackLayout extends FrameLayout {
             case MotionEvent.ACTION_MOVE:
                 int moveX = (int) ev.getRawX();
                 //满足此条件屏蔽SildingFinishLayout里面子类的touch事件
-                if(moveX - downX > mTouchSlop && Math.abs((int) ev.getRawY() - downY) < mTouchSlop){
+                if((moveX - downX > mTouchSlop || downX - moveX > mTouchSlop) && Math.abs((int) ev.getRawY() - downY) < mTouchSlop){
                     return true;
                 }
                 break;
@@ -108,23 +112,33 @@ public class SwipeBackLayout extends FrameLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent ev){
+        Log.d(TAG, "onTouchEvent");
         switch (ev.getAction()){
             case MotionEvent.ACTION_MOVE:
                 int moveX = (int) ev.getRawX();
+                Log.e(TAG, "tempX = " + tempX);
                 int deltaX = tempX - moveX;
                 tempX = moveX;
-                if(moveX - downX > mTouchSlop && Math.abs((int) ev.getRawX() - downX) < mTouchSlop){
+                Log.e(TAG, "moveX = " + moveX);
+                Log.e(TAG, "deltaX = " + deltaX);
+                Log.e(TAG, "downX = " + downX);
+                Log.e(TAG, "mTouchSlop = " + mTouchSlop);
+                if((moveX - downX > mTouchSlop || downX - moveX > mTouchSlop) && Math.abs((int) ev.getRawY() - downY) < mTouchSlop){
                     isSliding = true;
                 }
-                if(moveX - downX >= 0 && isSliding){
+                if(/*moveX - downX >= 0 &&*/ isSliding){
                     mContentView.scrollBy(deltaX, 0);
                 }
                 break;
             case MotionEvent.ACTION_UP:
                 isSliding = false;
+                Log.e(TAG, "downX = " + viewWidth);
                 if(mContentView.getScrollX() <= -viewWidth / 2){
                     isFinish = true;
                     scrollRight();
+                }else if(mContentView.getScrollX() >= viewWidth / 2){
+                    isFinish = true;
+                    scrollLeft();
                 }else{
                     scrollOrigin();
                     isFinish = false;
@@ -140,6 +154,7 @@ public class SwipeBackLayout extends FrameLayout {
      * @param parent
      */
     private void getAllViewPager(List<ViewPager> mViewPagers, ViewGroup parent){
+        Log.d(TAG, "getAllViewPager");
         int childCount = parent.getChildCount();
         for(int i = 0; i < childCount; i++){
             View child = parent.getChildAt(i);
@@ -158,6 +173,7 @@ public class SwipeBackLayout extends FrameLayout {
      * @return
      */
     private ViewPager getTouchViewPager(List<ViewPager> mViewPagers, MotionEvent ev){
+        Log.d(TAG, "getTouchViewPager");
         if(mViewPagers == null || mViewPagers.size() == 0){
             return null;
         }
@@ -174,6 +190,7 @@ public class SwipeBackLayout extends FrameLayout {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b){
+        Log.d(TAG, "onLayout");
         super.onLayout(changed, l, t, r, b);
         if(changed){
             viewWidth = this.getWidth();
@@ -184,6 +201,7 @@ public class SwipeBackLayout extends FrameLayout {
 
     @Override
     protected void dispatchDraw(Canvas canvas){
+        Log.d(TAG, "dispatchDraw");
         super.dispatchDraw(canvas);
         if(mShadowDrawable != null && mContentView != null){
             int left = mContentView.getLeft() - mShadowDrawable.getIntrinsicWidth();
@@ -200,9 +218,10 @@ public class SwipeBackLayout extends FrameLayout {
      * 滚动出界面
      */
     private void scrollRight(){
+        Log.d(TAG, "scrollRight");
         final int delta = (viewWidth + mContentView.getScrollX());
         // 调用startScroll方法来设置一些滚动的参数，我们在computeScroll()方法中调用scrollTo来滚动item
-        mScroller.startScroll(mContentView.getScrollX(), 0, -delta + 1, 0, Math.abs(delta));
+        mScroller.startScroll(mContentView.getScrollX(), 0, -delta + 5, 0, Math.abs(delta));
         postInvalidate();
     }
 
@@ -210,13 +229,21 @@ public class SwipeBackLayout extends FrameLayout {
      * 滚动到起始位置
      */
     private void scrollOrigin(){
+        Log.d(TAG, "scrollOrigin");
         int delta = mContentView.getScrollX();
         mScroller.startScroll(mContentView.getScrollX(), 0, -delta, 0, Math.abs(delta));
         postInvalidate();
     }
 
+    private void scrollLeft(){
+        Log.d(TAG, "scrollLeft");
+        int delta = mContentView.getScrollX() - viewWidth;
+        mScroller.startScroll(mContentView.getScrollX(), 0, -delta -5, 0, Math.abs(delta));
+        postInvalidate();
+    }
     @Override
     public void computeScroll(){
+        Log.d(TAG, "computeScroll");
         //调用startScroll的时候scroller.computeScrollOffset()返回true，
         if(mScroller.computeScrollOffset()){
             mContentView.scrollTo(mScroller.getCurrX(),mScroller.getCurrY());
@@ -226,6 +253,4 @@ public class SwipeBackLayout extends FrameLayout {
             }
         }
     }
-
-
 }

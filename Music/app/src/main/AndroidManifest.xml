@@ -9,7 +9,8 @@
         android:targetSdkVersion="17" />
 
     <application
-        android:name="linhai.example.com.constant.MyApplication">
+        android:name="linhai.example.com.constant.MyApplication"
+        android:theme="@android:style/Theme.NoTitleBar">
 
         <!-- Music Manager Activity -->
         <activity
@@ -57,7 +58,8 @@
 
         <!-- Music Setting Activity -->
         <activity
-            android:name="linhai.example.com.music.MusicSettingActivity">
+            android:name="linhai.example.com.music.MusicSettingActivity"
+            android:theme="@style/touming">
         </activity>
 
         <!-- Play Music Service-->
