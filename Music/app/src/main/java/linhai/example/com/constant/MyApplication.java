@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import android.view.WindowManager;
 
+import org.litepal.LitePalApplication;
+
 /**
  * Created by linhai on 15/5/9.
  */
@@ -25,6 +27,7 @@ public class MyApplication extends Application {
     @Override
     public void onCreate(){
         context = getApplicationContext();
+        LitePalApplication.initialize(context);
     }
 
     public static Context getContext(){

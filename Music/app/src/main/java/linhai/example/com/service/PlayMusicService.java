@@ -5,6 +5,7 @@ import java.util.List;
 
 import linhai.example.com.audio.AudioInfo;
 import linhai.example.com.constant.GlobalConstant;
+import linhai.example.com.databaseHelper.HistoryTable;
 import linhai.example.com.databaseHelper.MusicDatabaseHelper;
 import linhai.example.com.lrc.LrcContent;
 import linhai.example.com.lrc.LrcHandler;
@@ -21,6 +22,8 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.IBinder;
 import android.util.Log;
+
+import org.litepal.crud.DataSupport;
 
 public class PlayMusicService extends Service{
 	private static final String TAG = "PlayMusicService";
@@ -192,25 +195,35 @@ public class PlayMusicService extends Service{
 			initLrc();
 			sendUpdateLrcListBroadcast();
 
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            Cursor cursor = db.query("history", null, null, null, null, null, null);
+			/*** save in history table*/
+            //SQLiteDatabase db = dbHelper.getWritableDatabase();
+            //Cursor cursor = db.query("history", null, null, null, null, null, null);
             boolean isInserted = false;
-            if(cursor.moveToFirst()) {
-                do {
-                    String name = cursor.getString(cursor.getColumnIndex("name"));
-                    if (name.equals(songName)) {
-                        isInserted = true;
-                    }
-                } while (cursor.moveToNext());
-            }
+            //if(cursor.moveToFirst()) {
+                //do {
+			List<HistoryTable> hisList = DataSupport.findAll(HistoryTable.class);
+			for(HistoryTable h : hisList) {
+				//String name = cursor.getString(cursor.getColumnIndex("name"));
+				String name = h.getName();
+				if (name.equals(songName)) {
+					isInserted = true;
+				}
+			}
+                //} while (cursor.moveToNext());
+            //}
             if(isInserted == false) {
-                ContentValues values = new ContentValues();
-                values.put("name", songName);
-                values.put("path", songPath);
-                values.put("pos", songPos);
-                db.insert("history", null, values);
+                //ContentValues values = new ContentValues();
+                //values.put("name", songName);
+                //values.put("path", songPath);
+                //values.put("pos", songPos);
+                //db.insert("history", null, values);
+				HistoryTable h = new HistoryTable();
+				h.setName(songName);
+				h.setPos(songPos);
+				h.setPath(songPath);
+				h.save();
             }
-            cursor.close();
+            //cursor.close();
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

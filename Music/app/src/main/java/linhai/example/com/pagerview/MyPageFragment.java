@@ -63,24 +63,28 @@ public class MyPageFragment extends Fragment{
                         Log.d(TAG, "press local music key");
                         intent.setClass(mContext, MainActivity.class);
                         startActivity(intent);
+                        getActivity().overridePendingTransition(R.anim.base_slide_right_in, R.anim.base_slide_remain);
                     }
                     break;
                     case GlobalConstant.HISTORY_MUSIC:{
                         Log.d(TAG, "press history key");
                         intent.setClass(mContext, MusicHistoryActivity.class);
                         startActivity(intent);
+                        getActivity().overridePendingTransition(R.anim.base_slide_right_in, R.anim.base_slide_remain);
                     }
                     break;
                     case GlobalConstant.COLLECT_MUSIC:{
                         Log.d(TAG, "press collect key");
                         intent.setClass(mContext, MusicCollectActivity.class);
                         startActivity(intent);
+                        getActivity().overridePendingTransition(R.anim.base_slide_right_in, R.anim.base_slide_remain);
                     }
                     break;
                     case GlobalConstant.SEARCH_MUSIC:{
                         Log.d(TAG, "press search key");
                         intent.setClass(mContext, MusicSearchActivity.class);
                         startActivity(intent);
+                        getActivity().overridePendingTransition(R.anim.base_slide_right_in, R.anim.base_slide_remain);
                     }
                     break;
                     case GlobalConstant.SETTING_MUSIC:{

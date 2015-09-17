@@ -7,16 +7,17 @@ import android.view.Window;
 
 import com.example.musicplayer.R;
 
+import linhai.example.com.baseview.SwipeBackActivity;
+
 /**
  * Created by linhai on 15/4/22.
  */
-public class MusicSearchActivity extends Activity{
+public class MusicSearchActivity extends SwipeBackActivity {
     private static final String TAG = "MusicSearchActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.music_search_activity);
     }
 

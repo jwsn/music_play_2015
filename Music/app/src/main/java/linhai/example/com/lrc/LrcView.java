@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import linhai.example.com.floatview.FloatViewManager;
+import linhai.example.com.music.AnimationActivity;
 import linhai.example.com.music.MainActivity;
 import linhai.example.com.utils.ControlUtils;
 
@@ -163,7 +164,7 @@ public class LrcView extends View implements ILrcView{
 		if(mLrcContents == null || mLrcContents.size() == 0){
 			//画默认的显示文字
 			mPaintForHighLightLrc.setTextSize(DEFAULT_SIZE_FOR_HIGHT_LIGHT_LRC);
-			String currentSongName = MainActivity.audioInfoList.get(ControlUtils.curMusicPos).getTitle();//getAudioList().getCurPos().getName();
+			String currentSongName = AnimationActivity.audioInfoList.get(ControlUtils.curMusicPos).getTitle();//getAudioList().getCurPos().getName();
 			float textWidth = mPaintForHighLightLrc.measureText(currentSongName);
 			float textX = (getWidth()-textWidth)/2;
             //画出歌名
@@ -174,7 +175,7 @@ public class LrcView extends View implements ILrcView{
 			textX = (getWidth()-textWidth)/2;
             //没有歌词
 			canvas.drawText(DEFAULT_TEXT, textX, getHeight()/2, mPaintForHighLightLrc);
-            Log.e(TAG, "HAIBING");
+            //Log.e(TAG, "HAIBING");
 			return;
 		}
 
@@ -209,12 +210,12 @@ public class LrcView extends View implements ILrcView{
 
         boolean flag = false;
 
-        Log.e(TAG, "ROWY = " + rowY);
+        //Log.e(TAG, "ROWY = " + rowY);
 		for (int i = minRaw; i <= maxRaw; i++) {
-            Log.e(TAG, "ROWY = " + rowY);
+            //Log.e(TAG, "ROWY = " + rowY);
 			if(i == mCurRow){//画高亮歌词
 				//因为有缩放效果，所有需要动态设置歌词的字体大小
-                Log.e(TAG, "MCURROW");
+                //Log.e(TAG, "MCURROW");
 				float textSize = mCurSizeForOtherLrc + (mCurSizeForHightLightLrc - mCurSizeForOtherLrc)*mCurFraction;
 				mPaintForHighLightLrc.setTextSize(textSize);
 
@@ -415,7 +416,7 @@ public class LrcView extends View implements ILrcView{
 	 */
 	@Override
 	public void setLrcContents(List<LrcContent> lrcRows) {
-        Log.e(TAG, "HAIBINGHAIBINGHAIBING");
+        //Log.e(TAG, "HAIBINGHAIBINGHAIBING");
 		reset();
 		this.mLrcContents = lrcRows;
 		invalidate();
@@ -463,7 +464,7 @@ public class LrcView extends View implements ILrcView{
 						startScrollLrc(getWidth()-textWidth, (long) (mLrcContents.get(mCurRow).getTotalTime()*0.6));
 					}
 					
-					Log.e(TAG, "seekTo mCurrow ="+mCurRow);
+					//Log.e(TAG, "seekTo mCurrow ="+mCurRow);
 					invalidate();
 					
 				}

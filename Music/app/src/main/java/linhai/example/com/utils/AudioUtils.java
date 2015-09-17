@@ -38,13 +38,14 @@ public class AudioUtils{
 		MediaStore.Audio.Media.MIME_TYPE,
 		MediaStore.Audio.Media.DATA
 	};
-	
+
+	/***only one instance*/
 	public static AudioUtils getInstance(){
 		return instance;
 	}
-	
+
+	/*** constructor*/
 	private AudioUtils(){
-		
 	}
 /*
 	public List<AudioInfo> getAudioList(Context context){
@@ -91,6 +92,7 @@ public class AudioUtils{
 		return audioList;
 	}
 	*/
+	/***get the song list from device and sava in db*/
 	public List<AudioInfo> getAudioInfoList(Context context) {
 		Cursor cursor = context.getContentResolver().query(
 				MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null,
@@ -99,27 +101,28 @@ public class AudioUtils{
 		List<AudioInfo> audioInfoList = new ArrayList<AudioInfo>();
 		for (int i = 0; i < cursor.getCount(); i++) {
 			cursor.moveToNext();
-			AudioInfo audioInfo = new AudioInfo();
 			long id = cursor.getLong(cursor
-					.getColumnIndex(MediaStore.Audio.Media._ID));	//����id
+					.getColumnIndex(MediaStore.Audio.Media._ID));
 			String title = cursor.getString((cursor	
-					.getColumnIndex(MediaStore.Audio.Media.TITLE))); // ���ֱ���
+					.getColumnIndex(MediaStore.Audio.Media.TITLE)));
 			String artist = cursor.getString(cursor
-					.getColumnIndex(MediaStore.Audio.Media.ARTIST)); // ������
+					.getColumnIndex(MediaStore.Audio.Media.ARTIST));
 			String album = cursor.getString(cursor
-					.getColumnIndex(MediaStore.Audio.Media.ALBUM));	//ר��
+					.getColumnIndex(MediaStore.Audio.Media.ALBUM));
 			String displayName = cursor.getString(cursor
 					.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
 			long albumId = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
 			long duration = cursor.getLong(cursor
-					.getColumnIndex(MediaStore.Audio.Media.DURATION)); // ʱ��
+					.getColumnIndex(MediaStore.Audio.Media.DURATION));
 			long size = cursor.getLong(cursor
-					.getColumnIndex(MediaStore.Audio.Media.SIZE)); // �ļ���С
+					.getColumnIndex(MediaStore.Audio.Media.SIZE));
 			String url = cursor.getString(cursor
-					.getColumnIndex(MediaStore.Audio.Media.DATA)); // �ļ�·��
+					.getColumnIndex(MediaStore.Audio.Media.DATA));
 			int isMusic = cursor.getInt(cursor
-					.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC)); // �Ƿ�Ϊ����
-			if (isMusic != 0) { // ֻ��������ӵ����ϵ���
+					.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC));
+			if (isMusic != 0) {
+				/***sava in database*/
+				AudioInfo audioInfo = new AudioInfo();
 				audioInfo.setId(id);
 				audioInfo.setTitle(title);
 				audioInfo.setArtist(artist);
@@ -130,16 +133,12 @@ public class AudioUtils{
 				audioInfo.setSize(size);
 				audioInfo.setUrl(url);
 				audioInfoList.add(audioInfo);
+				audioInfo.save();
 			}
 		}
 		return audioInfoList;
 	}
-	
-	/**
-	 * ��ʽ��ʱ�䣬������ת��Ϊ��:���ʽ
-	 * @param time
-	 * @return
-	 */
+
 	public String formatTime(long time) {
 		String min = time / (1000 * 60) + "";
 		String sec = time % (1000 * 60) + "";

@@ -5,6 +5,7 @@ import java.util.Random;
 import linhai.example.com.adapter.MusicListAdapter;
 import linhai.example.com.audio.AudioInfo;
 import linhai.example.com.constant.GlobalConstant;
+import linhai.example.com.databaseHelper.CollectTable;
 import linhai.example.com.floatview.FloatViewManager;
 import linhai.example.com.lrc.LrcView;
 import linhai.example.com.service.PlayMusicService;
@@ -35,6 +36,8 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.example.musicplayer.R;
+
+import org.litepal.crud.DataSupport;
 
 public class PlayingActivity extends Activity {
 	private static final String TAG = "PlayingActivity";
@@ -268,30 +271,42 @@ public class PlayingActivity extends Activity {
                 if(fromWhichActivity == GlobalConstant.FROM_COLL_ACTIVITY){
                     break;
                 }
-
-                SQLiteDatabase db = dbHelper.getWritableDatabase();
-                Cursor cursor = db.query("collect", null, null, null, null, null, null);
-                boolean isInserted = false;
-                if(cursor.moveToFirst()) {
-                    do {
-                        String name = cursor.getString(cursor.getColumnIndex("name"));
-                        if(name.equals(audioInfoList.get(curPlayPos).getTitle())){
-                            isInserted = true;
-                            break;
-                        }
-                    } while (cursor.moveToNext());
-                }
+				/***save song into database ****/
+                //SQLiteDatabase db = dbHelper.getWritableDatabase();
+                //Cursor cursor = db.query("collect", null, null, null, null, null, null);
+				List<CollectTable> collectTablesList = DataSupport.findAll(CollectTable.class);
+				boolean isInserted = false;
+                //if(cursor.moveToFirst()) {
+                    //do {
+						for(CollectTable c : collectTablesList) {
+							//String name = cursor.getString(cursor.getColumnIndex("name"));
+							String name = c.getName();
+							Log.e(TAG, "name = " + c.getName());
+							Log.e(TAG, "title = " + audioInfoList.get(curPlayPos).getTitle());
+							if (name.equals(audioInfoList.get(curPlayPos).getTitle())) {
+								isInserted = true;
+								break;
+							}
+						}
+                    //} while (cursor.moveToNext());
+                //}
                 if(isInserted == false) {
-                    //Log.d(TAG, "insert the name = " + MainActivity.audioInfoList.get(ControlUtils.curMusicPos).getTitle());
-                    //Log.d(TAG, "insert the path = " + MainActivity.audioInfoList.get(ControlUtils.curMusicPos).getUrl());
-                   // Log.d(TAG, "insert the pos = " + ControlUtils.curMusicPos);
-                    ContentValues values = new ContentValues();
-                    values.put("name", audioInfoList.get(curPlayPos).getTitle());
-                    values.put("path", audioInfoList.get(curPlayPos).getUrl());
-                    values.put("pos", curPlayPos);
-                    db.insert("collect", null, values);
+                    Log.e(TAG, "insert the name = " + audioInfoList.get(curPlayPos).getTitle());
+                    //Log.e(TAG, "insert the path = " + MainActivity.audioInfoList.get(ControlUtils.curMusicPos).getUrl());
+                   	Log.e(TAG, "insert the pos = " + curPlayPos);
+                    //ContentValues values = new ContentValues();
+                    //values.put("name", audioInfoList.get(curPlayPos).getTitle());
+                    //values.put("path", audioInfoList.get(curPlayPos).getUrl());
+                    //values.put("pos", curPlayPos);
+					Log.e(TAG, "insert in db");
+					CollectTable c = new CollectTable();
+					c.setName(audioInfoList.get(curPlayPos).getTitle());
+					c.setPath(audioInfoList.get(curPlayPos).getUrl());
+					c.setPos(curPlayPos);
+					c.save();
+                    //db.insert("collect", null, values);
                 }
-                cursor.close();
+                //cursor.close();
             }
             break;
 	    	default:{

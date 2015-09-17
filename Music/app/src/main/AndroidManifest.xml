@@ -19,7 +19,8 @@
 
         <!-- Main Activity -->
         <activity
-            android:name="linhai.example.com.music.MainActivity" >
+            android:name="linhai.example.com.music.MainActivity"
+            android:theme="@style/touming">
         </activity>
 
         <!-- Animation Activity -->
@@ -43,23 +44,32 @@
 
         <!-- Music Collect Activity -->
         <activity
-            android:name="linhai.example.com.music.MusicCollectActivity">
+            android:name="linhai.example.com.music.MusicCollectActivity"
+            android:theme="@style/touming">
         </activity>
 
         <!-- Music History Activity -->
         <activity
-            android:name="linhai.example.com.music.MusicHistoryActivity">
+            android:name="linhai.example.com.music.MusicHistoryActivity"
+            android:theme="@style/touming">
         </activity>
 
         <!-- Music Search Activity -->
         <activity
-            android:name="linhai.example.com.music.MusicSearchActivity">
+            android:name="linhai.example.com.music.MusicSearchActivity"
+            android:theme="@style/touming">
         </activity>
 
         <!-- Music Setting Activity -->
         <activity
             android:name="linhai.example.com.music.MusicSettingActivity"
             android:theme="@style/touming">
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH"/>
+            </intent-filter>
+            <meta-data android:name="android.app.searchable"
+                android:resource="@xml/searchable"/>
         </activity>
 
         <!-- Play Music Service-->

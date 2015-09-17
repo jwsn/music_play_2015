@@ -15,6 +15,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.example.musicplayer.R;
+
+import org.litepal.crud.DataSupport;
+import org.litepal.tablemanager.Connector;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -23,7 +27,9 @@ import linhai.example.com.adapter.MyAdapter;
 import linhai.example.com.adapter.MyLinearLayout;
 import linhai.example.com.adapter.MyListView;
 import linhai.example.com.audio.AudioInfo;
+import linhai.example.com.baseview.SwipeBackActivity;
 import linhai.example.com.constant.GlobalConstant;
+import linhai.example.com.databaseHelper.CollectTable;
 import linhai.example.com.databaseHelper.MusicDatabaseHelper;
 import linhai.example.com.service.PlayMusicService;
 import linhai.example.com.utils.ControlUtils;
@@ -32,7 +38,7 @@ import linhai.example.com.utils.ImageUtils;
 /**
  * Created by linhai on 15/4/22.
  */
-public class MusicCollectActivity extends Activity implements MyLinearLayout.OnScrollListener, View.OnClickListener{
+public class MusicCollectActivity extends SwipeBackActivity implements MyLinearLayout.OnScrollListener, View.OnClickListener{
     private static final String TAG = "MusicCollectActivity";
 
     private MusicDatabaseHelper dbHelper; //= new MusicDatabaseHelper(this, "collect.db", null, 1);
@@ -58,23 +64,25 @@ public class MusicCollectActivity extends Activity implements MyLinearLayout.OnS
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.music_collect_activity);
 
         //collectListView = (ListView) findViewById(R.id.music_collect_list);
         collectListView = (MyListView) findViewById(R.id.music_collect_list);
-        dbHelper = new MusicDatabaseHelper(this, "collect.db", null, 1);
-        db = dbHelper.getWritableDatabase();
-        Cursor cursor = db.query("collect", null, null, null, null, null, null);
+        //dbHelper = new MusicDatabaseHelper(this, "collect.db", null, 1);
+        //db = dbHelper.getWritableDatabase();
+        //Cursor cursor = db.query("collect", null, null, null, null, null, null);
 
-        if(cursor.moveToFirst()){
-            do{
-                boolean isFindSong = false;
-                String name = cursor.getString(cursor.getColumnIndex("name"));
-                for(int i = 0; i < AnimationActivity.audioInfoList.size(); i++)
-                {
-                    if(AnimationActivity.audioInfoList.get(i).getTitle().equals(name)){
-                        isFindSong = true;
+        List<CollectTable> collectTablesList = DataSupport.findAll(CollectTable.class);
+
+        //if(cursor.moveToFirst()){
+            //do{
+            for(CollectTable c : collectTablesList) {
+                //boolean isFindSong = false;
+                //String name = cursor.getString(cursor.getColumnIndex("name"));
+                String name = c.getName();
+                for (int i = 0; i < AnimationActivity.audioInfoList.size(); i++) {
+                    if (AnimationActivity.audioInfoList.get(i).getTitle().equals(name)) {
+                        //isFindSong = true;
                         AudioInfo audioInfo = new AudioInfo();
                         AudioInfo temp = AnimationActivity.audioInfoList.get(i);
                         audioInfo.setId(temp.getId());
@@ -93,17 +101,18 @@ public class MusicCollectActivity extends Activity implements MyLinearLayout.OnS
                         break;
                     }
                 }
-                if(isFindSong){
-                    break;
-                }
-            }while(cursor.moveToNext());
-        }
-        cursor.close();
+                //if (isFindSong) {
+                    //break;
+                //}
+            }
+            //}while(cursor.moveToNext());
+        //}
+        //cursor.close();
 
+        if(audioInfoList.size() == 0) return;
         initButtonView();
         setButtonListener();
 
-        if(audioInfoList.size() == 0) return;
 
         //musicListAdapter = new MusicListAdapter(this, audioInfoList);
         myAdapter = new MyAdapter(this, mdataList, this, this);
@@ -417,19 +426,38 @@ public class MusicCollectActivity extends Activity implements MyLinearLayout.OnS
         if(v.getId() == R.id.del){
             int pos = collectListView.getPositionForView(v);
             myAdapter.removeItem(pos);
-            Cursor cursor = db.query("collect", null, null, null, null, null, null);
-            if(cursor.moveToFirst()){
-                do{
-                    //int p = cursor.getInt(cursor.getColumnIndex("pos"));
-                    String name = cursor.getString(cursor.getColumnIndex("name"));
-                    if(name.equals(audioInfoList.get(pos).getTitle()))
-                    {
-                        db.delete("collect", "name=?", new String[]{name});
-                        break;
-                    }
-                }while(cursor.moveToNext());
+            /***delete the song in collect list*/
+            List<CollectTable> hisList = DataSupport.where("name = ?", audioInfoList.get(pos).getTitle()).find(CollectTable.class);
+            for(CollectTable h : hisList){
+                //int p = cursor.getInt(cursor.getColumnIndex("pos"));
+                //String String = cursor.getString(cursor.getColumnIndex("name"));
+
+                String path = h.getPath();
+                if(path.equals(audioInfoList.get(pos).getUrl()))
+                {
+                    h.delete();
+                    //db.delete("history", "name=?", new String[]{name});
+                    break;
+                }
             }
-            cursor.close();
+            //Cursor cursor = db.query("collect", null, null, null, null, null, null);
+            //if(cursor.moveToFirst()){
+                //do{
+                    //int p = cursor.getInt(cursor.getColumnIndex("pos"));
+                    //List<CollectTable> collectTablesList = DataSupport.findAll(CollectTable.class);
+                    //DataSupport.deleteAll(CollectTable.class, "name = ?", audioInfoList.get(pos).getTitle());
+                    //for(CollectTable c : collectTablesList) {
+                        //String name = cursor.getString(cursor.getColumnIndex("name"));
+                        //String name = c.getName();
+                        //if (name.equals(audioInfoList.get(pos).getTitle())) {
+                            //db.delete("collect", "name=?", new String[]{name});
+                            //DataSupport.delete(CollectTable.class, "name = ?", name);
+                            //break;
+                        //}
+                    //}
+                //}while(cursor.moveToNext());
+            //}
+            //cursor.close();
             audioInfoList.remove(pos);
         }
     }

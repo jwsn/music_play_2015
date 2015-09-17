@@ -26,6 +26,9 @@ import android.widget.Toast;
 import com.example.musicplayer.R;
 import android.view.View;
 
+import org.litepal.crud.DataSupport;
+import org.litepal.tablemanager.Connector;
+
 import linhai.example.com.adapter.MyAdapter;
 import linhai.example.com.adapter.MyListView;
 import linhai.example.com.audio.AudioInfo;
@@ -57,7 +60,14 @@ public class AnimationActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		//setContentView();
 		setContentView(R.layout.activity_amination);
-        audioInfoList = AudioUtils.getInstance().getAudioInfoList(AnimationActivity.this);
+
+		/*** create the database */
+		Connector.getDatabase();
+
+		/*** find the music on device and save in audiolist*/
+		audioInfoList = AudioUtils.getInstance().getAudioInfoList(AnimationActivity.this);
+		//DataSupport.saveAll(audioInfoList);
+
         if(audioInfoList != null && audioInfoList.size() > 0) {
             for (int i = 0; i < audioInfoList.size(); i++) {
                 MyAdapter.DataHolder holder = new MyAdapter.DataHolder();
@@ -66,6 +76,7 @@ public class AnimationActivity extends Activity {
             }
         }
 
+		/***
 		//musicList = laudio.getLocalAudioList();
 		//PushManager.getInstance().initialize(this.getApplicationContext());
 		//Aminationcontext = this.getApplicationContext();
@@ -87,8 +98,9 @@ public class AnimationActivity extends Activity {
 	    	//shakeseting = d.getString(0);
 	    	//lrcshow = d.getString(1);
 	    //} 
-	   
+	   */
 
+		/*** welcome interface */
 		//musicList = laudio.getLocalAudioList();
 		new Handler().postDelayed(new Runnable(){
 

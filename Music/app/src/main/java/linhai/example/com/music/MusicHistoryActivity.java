@@ -19,12 +19,19 @@ import java.util.ArrayList;
 import java.util.List;
 import com.example.musicplayer.R;
 
+import org.litepal.crud.DataSupport;
+import org.litepal.tablemanager.Connector;
+
 import linhai.example.com.adapter.MusicListAdapter;
 import linhai.example.com.adapter.MyAdapter;
 import linhai.example.com.adapter.MyLinearLayout;
 import linhai.example.com.adapter.MyListView;
 import linhai.example.com.audio.AudioInfo;
+import linhai.example.com.baseview.SwipeBackActivity;
+import linhai.example.com.baseview.SwipeBackLayout;
 import linhai.example.com.constant.GlobalConstant;
+import linhai.example.com.databaseHelper.CollectTable;
+import linhai.example.com.databaseHelper.HistoryTable;
 import linhai.example.com.databaseHelper.MusicDatabaseHelper;
 import linhai.example.com.service.PlayMusicService;
 import linhai.example.com.utils.ControlUtils;
@@ -33,7 +40,7 @@ import linhai.example.com.utils.ImageUtils;
 /**
  * Created by linhai on 15/4/22.
  */
-public class MusicHistoryActivity extends Activity implements MyLinearLayout.OnScrollListener, View.OnClickListener{
+public class MusicHistoryActivity extends SwipeBackActivity implements MyLinearLayout.OnScrollListener, View.OnClickListener{
     private static final String TAG = "MusicHistoryActivity";
 
     private MusicDatabaseHelper dbHelper; //= new MusicDatabaseHelper(this, "collect.db", null, 1);
@@ -59,20 +66,23 @@ public class MusicHistoryActivity extends Activity implements MyLinearLayout.OnS
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.music_history_activity);
 
         historyListView = (MyListView) findViewById(R.id.music_history_list);
-        dbHelper = new MusicDatabaseHelper(this, "history.db", null, 1);
-        db = dbHelper.getWritableDatabase();
-        Cursor cursor = db.query("history", null, null, null, null, null, null);
+        Connector.getDatabase();
+        List<HistoryTable> historyTableList = DataSupport.findAll(HistoryTable.class);
 
-        if(cursor.moveToFirst()){
-            do{
-                String name = cursor.getString(cursor.getColumnIndex("name"));
-                for(int i = 0; i < AnimationActivity.audioInfoList.size(); i++)
-                {
-                    if(AnimationActivity.audioInfoList.get(i).getTitle().equals(name)){
+        //dbHelper = new MusicDatabaseHelper(this, "history.db", null, 1);
+        //db = dbHelper.getWritableDatabase();
+        //Cursor cursor = db.query("history", null, null, null, null, null, null);
+
+        //if(cursor.moveToFirst()){
+            //do{
+                //String name = cursor.getString(cursor.getColumnIndex("name"));
+            for(HistoryTable c : historyTableList) {
+                String name = c.getName();
+                for (int i = 0; i < AnimationActivity.audioInfoList.size(); i++) {
+                    if (AnimationActivity.audioInfoList.get(i).getTitle().equals(name)) {
                         AudioInfo audioInfo = new AudioInfo();
                         AudioInfo temp = AnimationActivity.audioInfoList.get(i);
                         audioInfo.setId(temp.getId());
@@ -91,14 +101,15 @@ public class MusicHistoryActivity extends Activity implements MyLinearLayout.OnS
                         break;
                     }
                 }
-            }while(cursor.moveToNext());
-        }
-        cursor.close();
+            }
+            //}while(cursor.moveToNext());
+        //}
+        //cursor.close();
+
+        if(audioInfoList.size() == 0) return;
 
         initButtonView();
         setButtonListener();
-
-        if(audioInfoList.size() == 0) return;
 
         myAdapter = new MyAdapter(this, mdataList, this, this);
         historyListView.setAdapter(myAdapter);
@@ -414,19 +425,26 @@ public class MusicHistoryActivity extends Activity implements MyLinearLayout.OnS
         if(v.getId() == R.id.del){
             int pos = historyListView.getPositionForView(v);
             myAdapter.removeItem(pos);
-            Cursor cursor = db.query("history", null, null, null, null, null, null);
-            if(cursor.moveToFirst()){
-                do{
+            //Cursor cursor = db.query("history", null, null, null, null, null, null);
+            //if(cursor.moveToFirst()){
+                //do{
+            /***delete the song from the history list*/
+            List<HistoryTable> hisList = DataSupport.where("name = ?", audioInfoList.get(pos).getTitle()).find(HistoryTable.class);
+            for(HistoryTable h : hisList){
                     //int p = cursor.getInt(cursor.getColumnIndex("pos"));
-                    String name = cursor.getString(cursor.getColumnIndex("name"));
-                    if(name.equals(audioInfoList.get(pos).getTitle()))
-                    {
-                        db.delete("history", "name=?", new String[]{name});
-                        break;
-                    }
-                }while(cursor.moveToNext());
+                    //String String = cursor.getString(cursor.getColumnIndex("name"));
+
+                String path = h.getPath();
+                if(path.equals(audioInfoList.get(pos).getUrl()))
+                {
+                    h.delete();
+                    //db.delete("history", "name=?", new String[]{name});
+                    break;
+                }
             }
-            cursor.close();
+                //}while(cursor.moveToNext());
+            //}
+            //cursor.close();
             audioInfoList.remove(pos);
         }
     }

@@ -3,26 +3,28 @@ package linhai.example.com.audio;
 import android.os.Bundle;
 import android.provider.MediaStore;
 
-public class AudioInfo{
-	private String mTitle,
-				   mTitleKey,
-				   mArtist,
-				   mArtistKey,
-				   mComposer,
-				   mAlbum,
-				   mAlbumKey,
-				   mDisplayName,
-				   mMimeType,
-				   mPath;
+import org.litepal.crud.DataSupport;
+
+public class AudioInfo extends DataSupport{
+	private String title,
+				   titleKey,
+				   artist,
+				   artistKey,
+				   composer,
+				   album,
+				   albumKey,
+				   displayName,
+				   mimeType,
+				   path;
 	
-	private long mId,
-				mArtistId,
-				mAlbumId,
-				mYear,
-				mTrack;
+	private long id,
+				artistId,
+				albumId,
+				year,
+				track;
 	
-	private long mDuration = 0,
-				mSize = 0;
+	private long duration = 0,
+				size = 0;
 	
 	private boolean isRingtone = false,
 					isPodcast = false,
@@ -30,73 +32,69 @@ public class AudioInfo{
 					isMusic = false,
 					isNotification = false;
 	
-	private String url; // ����·�� 5
+	private String url;
 	
 	
 	
-	
+	/***
 	public AudioInfo (Bundle bundle)
 	{
-		mId = bundle.getInt(MediaStore.Audio.Media._ID);
-		mTitle = bundle.getString(MediaStore.Audio.Media.TITLE);
-		mTitleKey = bundle.getString(MediaStore.Audio.Media.TITLE_KEY);
-		mArtist = bundle.getString(MediaStore.Audio.Media.ARTIST);
-		mArtistKey = bundle.getString(MediaStore.Audio.Media.ALBUM_KEY);
-		mComposer = bundle.getString(MediaStore.Audio.Media.COMPOSER);
-		mAlbum = bundle.getString(MediaStore.Audio.Media.ALBUM);
-		mAlbumKey = bundle.getString(MediaStore.Audio.Media.ALBUM_KEY);
-		mDisplayName = bundle.getString(MediaStore.Audio.Media.DISPLAY_NAME);
-		mYear = bundle.getInt(MediaStore.Audio.Media.YEAR);
-		mMimeType = bundle.getString(MediaStore.Audio.Media.MIME_TYPE);
-		mPath = bundle.getString(MediaStore.Audio.Media.DATA);
+		id = bundle.getInt(MediaStore.Audio.Media._ID);
+		title = bundle.getString(MediaStore.Audio.Media.TITLE);
+		titleKey = bundle.getString(MediaStore.Audio.Media.TITLE_KEY);
+		artist = bundle.getString(MediaStore.Audio.Media.ARTIST);
+		artistKey = bundle.getString(MediaStore.Audio.Media.ALBUM_KEY);
+		composer = bundle.getString(MediaStore.Audio.Media.COMPOSER);
+		album = bundle.getString(MediaStore.Audio.Media.ALBUM);
+		albumKey = bundle.getString(MediaStore.Audio.Media.ALBUM_KEY);
+		displayName = bundle.getString(MediaStore.Audio.Media.DISPLAY_NAME);
+		year = bundle.getInt(MediaStore.Audio.Media.YEAR);
+		mimeType = bundle.getString(MediaStore.Audio.Media.MIME_TYPE);
+		path = bundle.getString(MediaStore.Audio.Media.DATA);
 		
-		mArtistId = bundle.getInt(MediaStore.Audio.Media.ARTIST_ID);
-		mAlbumId =bundle.getInt(MediaStore.Audio.Media.ALBUM_ID);
-		mTrack = bundle.getInt(MediaStore.Audio.Media.TRACK);
-		mDuration = bundle.getInt(MediaStore.Audio.Media.DURATION);
-		mSize = bundle.getInt(MediaStore.Audio.Media.SIZE);
+		artistId = bundle.getInt(MediaStore.Audio.Media.ARTIST_ID);
+		albumId =bundle.getInt(MediaStore.Audio.Media.ALBUM_ID);
+		track = bundle.getInt(MediaStore.Audio.Media.TRACK);
+		duration = bundle.getInt(MediaStore.Audio.Media.DURATION);
+		size = bundle.getInt(MediaStore.Audio.Media.SIZE);
 		isRingtone = bundle.getInt(MediaStore.Audio.Media.IS_RINGTONE) == 1;
 		isPodcast = bundle.getInt(MediaStore.Audio.Media.IS_PODCAST) == 1;
 		isAlarm = bundle.getInt(MediaStore.Audio.Media.IS_ALARM) == 1;
 		isMusic = bundle.getInt(MediaStore.Audio.Media.IS_MUSIC) == 1;
 		isNotification = bundle.getInt(MediaStore.Audio.Media.IS_NOTIFICATION) == 1;
 		
-	}
-	
-	public AudioInfo (){
-		
-	}
+	}*/
 	
 	public long getId(){
-		return mId;
+		return id;
 	}
 	
-	public void setId(long id){
-		mId = id;
+	public void setId(long _id){
+		id = _id;
 	}
 	
 	public String getMimeType(){
-		return mMimeType;
+		return mimeType;
 	}
 	
 	public void setMimeType(String mt){
-		mMimeType = mt;
+		mimeType = mt;
 	}
 	
 	public long getDuration(){
-		return mDuration;
+		return duration;
 	}
 	
 	public void setDuration(long d){
-		mDuration = d;
+		duration = d;
 	}
 	
 	public long getSize(){
-		return mSize;
+		return size;
 	}
 
-	public void setSize(long size){
-		mSize = size;
+	public void setSize(long _size){
+		size = _size;
 	}
 	
 	public boolean isRingtone(){
@@ -107,11 +105,11 @@ public class AudioInfo{
 		isRingtone = flag;
 	}
 	
-	public boolean isPoscast(){
+	public boolean isPodcast(){
 		return isPodcast;
 	}
 	
-	public void setIsPoscast(boolean flag){
+	public void setIsPodcast(boolean flag){
 		isPodcast = flag;
 	}
 	
@@ -140,115 +138,115 @@ public class AudioInfo{
 	}
 	
 	public String getTitle(){
-		return mTitle;
+		return title;
 	}
 	
-	public void setTitle(String title){
-		mTitle = title;
+	public void setTitle(String _title){
+		title = _title;
 	}
 	
 	public String getTitleKey(){
-		return mTitleKey;
+		return titleKey;
 	}
 	
-	public void setTitleKey(String titleKey){
-		mTitleKey = titleKey;
+	public void setmTitleKey(String _titleKey){
+		titleKey = _titleKey;
 	}
 	
 	public String getArtist(){
-		return mArtist;
+		return artist;
 	}
 	
-	public void setArtist(String artist){
-		mArtist = artist;
+	public void setArtist(String _artist){
+		artist = _artist;
 	}
 	
 	public long getArtistId(){
-		return mArtistId;
+		return artistId;
 	}
 	
 	public void setArtistId(long id){
-		mArtistId = id;
+		artistId = id;
 	}
 	
 	public String getArtistKey(){
-		return mArtistKey;
+		return artistKey;
 	}
 	
 	public void setArtistKey(String ak){
-		mArtistKey = ak;
+		artistKey = ak;
 	}
 	
 	public String getComposer(){
-		return mComposer;
+		return composer;
 	}
 	
-	public void setComposer(String composer){
-		mComposer = composer;
+	public void setComposer(String _composer){
+		composer = _composer;
 	}
 	
 	public String getAlbum(){
-		return mAlbum;
+		return album;
 	}
 	
 	public void setAlbum(String ab){
-		mAlbum = ab;
+		album = ab;
 	}
 	
 	public long getAlbumId(){
-		return mAlbumId;
+		return albumId;
 	}
 	
 	public void setAlbumId(long id){
-		mAlbumId = id;
+		albumId = id;
 	}
 	
 	public String getAlbumKey(){
-		return mAlbumKey;
+		return albumKey;
 	}
 	
 	public void setAlbumkey(String key){
-		mAlbumKey = key;
+		albumKey = key;
 	}
 	
 	public String getDisplayName(){
-		return mDisplayName;
+		return displayName;
 	}
 	
 	public void setDisplayName(String name){
-		mDisplayName = name;
+		displayName = name;
 	}
 	
 	public long getYear(){
-		return mYear;
+		return year;
 	}
 	
-	public void setYear(long year){
-		mYear = year;
+	public void setYear(long _year){
+		year = _year;
 	}
 	
 	public long getTrack(){
-		return mTrack;
+		return track;
 	}
 	
-	public void setTrack(long track){
-		mTrack = track;
+	public void setTrack(long _track){
+		track = _track;
 	}
 	
 	public String getPath(){
-		return mPath;
+		return path;
 	}
 	
-	public void setPath(String path){
-		mPath = path;
+	public void setPath(String _path){
+		path = _path;
 	}
 	
 	public String getUrl() {
 		return url;
 	}
 
-	public void setUrl(String url) {
-		this.url = url;
+	public void setUrl(String _url) {
+		url = _url;
 	}
 }
 

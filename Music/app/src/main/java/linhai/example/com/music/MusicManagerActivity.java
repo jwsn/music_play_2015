@@ -4,6 +4,7 @@ package linhai.example.com.music;
 //import com.example.constant.GlobalConstant;
 
 import linhai.example.com.adapter.GridViewAdapter;
+import linhai.example.com.baseview.SwipeBackActivity;
 import linhai.example.com.constant.GlobalConstant;
 import linhai.example.com.floatview.FloatView;
 import linhai.example.com.floatview.FloatViewManager;
@@ -25,7 +26,7 @@ import com.example.musicplayer.R;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MusicManagerActivity extends Activity{
+public class MusicManagerActivity extends SwipeBackActivity{
     private static final String TAG = "MusicManagerActivity";
 	private GridView gridview;
 	private long exitTime = 0;
@@ -36,7 +37,6 @@ public class MusicManagerActivity extends Activity{
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_music_manager);
 
         initGridView();

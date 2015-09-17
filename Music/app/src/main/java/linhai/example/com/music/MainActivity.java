@@ -11,6 +11,7 @@ import linhai.example.com.adapter.MyAdapter;
 import linhai.example.com.adapter.MyLinearLayout;
 import linhai.example.com.adapter.MyListView;
 import linhai.example.com.audio.AudioInfo;
+import linhai.example.com.baseview.SwipeBackActivity;
 import linhai.example.com.constant.GlobalConstant;
 import linhai.example.com.service.PlayMusicService;
 import linhai.example.com.utils.AudioUtils;
@@ -41,7 +42,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.example.musicplayer.R;
 
-public class MainActivity extends Activity implements MyLinearLayout.OnScrollListener, View.OnClickListener{
+public class MainActivity extends SwipeBackActivity implements MyLinearLayout.OnScrollListener, View.OnClickListener{
 	private final String TAG = "MainActivity";
 	
 	/*** music list info ***/
@@ -81,7 +82,6 @@ public class MainActivity extends Activity implements MyLinearLayout.OnScrollLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
         
         /* init music list view*/
@@ -499,13 +499,6 @@ public class MainActivity extends Activity implements MyLinearLayout.OnScrollLis
             int pos = myListView.getPositionForView(v);
             myAdapter.removeItem(pos);
         }
-    }
-
-    /*** back key press ***/
-    @Override
-    public void onBackPressed(){
-        Log.d(TAG, "onBackPressed");
-        finish();
     }
 
     @Override
