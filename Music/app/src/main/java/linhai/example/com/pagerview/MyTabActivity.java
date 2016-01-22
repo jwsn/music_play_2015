@@ -3,7 +3,7 @@ package linhai.example.com.pagerview;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
+//import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -28,6 +28,7 @@ public class MyTabActivity extends FragmentActivity {
     private Handler handler = new Handler();
     private Timer timer;
     private RefreshFloatViewTask mrefreshTask;
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);

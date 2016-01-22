@@ -35,7 +35,8 @@ public class MyLinearLayout extends LinearLayout{
         mScroller = new Scroller(context, new LinearInterpolator(context, null));
     }
 
-    public static interface OnScrollListener{
+    public static interface
+            OnScrollListener{
         public void onScroll(MyLinearLayout view);
     }
 

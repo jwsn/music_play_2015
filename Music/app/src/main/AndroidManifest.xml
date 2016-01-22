@@ -26,6 +26,11 @@
         <!-- Animation Activity -->
         <activity
             android:name="linhai.example.com.music.AnimationActivity">
+        </activity>
+
+        <!-- Guide Activity -->
+        <activity
+            android:name="linhai.example.com.guide.GuideActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

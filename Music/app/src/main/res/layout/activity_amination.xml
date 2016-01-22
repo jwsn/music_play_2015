@@ -5,4 +5,5 @@
     android:orientation="horizontal" 
 	android:background="@drawable/bg_animation"
     >
- </LinearLayout>
+
+</LinearLayout>
